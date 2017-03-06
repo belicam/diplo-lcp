@@ -5,14 +5,18 @@
  */
 package sk.matfyz.belica.messages;
 
+import java.util.Set;
+import sk.matfyz.lcp.AbstractMessage;
+import sk.matfyz.lcp.api.AgentId;
+
 /**
  *
  * @author martin
  */
-public class InitMessage extends Message{
+public class InitMessage extends AbstractMessage {
 
-    public InitMessage() {
-        super(-1, null);
+    public InitMessage(Set<AgentId> rcpts) {
+        super(AgentId.ROOT, null, rcpts, null);
     }
 
     @Override

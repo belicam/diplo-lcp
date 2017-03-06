@@ -6,6 +6,7 @@ import java.util.Set;
 public interface Message extends Serializable {
 
 	public AgentId getSender();
+        public MessageId getId();
 	public void setSender(AgentId sender);
 	public Set<AgentId> getRecepients();
 	public String getContent();

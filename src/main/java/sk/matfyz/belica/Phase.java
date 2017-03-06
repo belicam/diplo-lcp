@@ -6,12 +6,13 @@
 package sk.matfyz.belica;
 
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.Message;
 
 /**
  *
  * @author martin
  */
 public interface Phase {
-    public void handleMessage(Object message);
-    public void sendMessage(AgentId receiverLabel, Object message);
+    public void handleMessage(Message message);
+    public void sendMessage(Message message);
 }

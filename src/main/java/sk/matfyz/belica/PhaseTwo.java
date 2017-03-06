@@ -6,6 +6,7 @@
 package sk.matfyz.belica;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Set;
 import sk.matfyz.belica.messages.*;
 import sk.matfyz.belica.solver.TreeSolver;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.Message;
 
 /**
  *
@@ -39,7 +41,7 @@ public class PhaseTwo implements Phase {
     }
 
     @Override
-    public void handleMessage(Object message) {
+    public void handleMessage(Message message) {
         if (message instanceof FireRequestMessage) {
             processFireRequest(message);
         } else if (message instanceof FireResponseMessage) {
@@ -50,19 +52,20 @@ public class PhaseTwo implements Phase {
     }
 
     @Override
-    public void sendMessage(AgentId receiverLabel, Object message) {
-        program.sendMessage(receiverLabel, message);
+    public void sendMessage(Message message) {
+        program.sendMessage(message);
     }
 
     private void processFiringEnded(Object message) {
-        AgentId sender = ((FiringEndedMessage) message).getSenderLabel();
+        AgentId sender = ((FiringEndedMessage) message).getSender();
 
         if (!participatedFiringEnded.get(sender)) {
             participatedFiringEnded.put(sender, Boolean.TRUE);
             
             // test  ci skoncili vsetci
             if (!participatedFiringEnded.containsValue(Boolean.FALSE)) {
-                program.broadcastMessage(new StopMessage());
+                System.out.println("Stop"); // TODO vyriesit stop message
+//                sendMessage(new StopMessage());
             }
         }
     }
@@ -70,28 +73,28 @@ public class PhaseTwo implements Phase {
     private void processFireRequest(Object message) {
         FireRequestMessage requestMessage = (FireRequestMessage) message;
         Set<Literal> obtainedLiterals = requestMessage.getLits();
-        AgentId sender = requestMessage.getSenderLabel();
+        AgentId sender = requestMessage.getSender();
         
         program.getSmallestModel().addAll(obtainedLiterals);
         fire(requestMessage);
 
         // ziadne nove message z tejto `requestMessage` nevznikli, tak rovno odpovedam 
         if (activeMessages.messageHasNoChildren(requestMessage)) {
-            sendMessage(sender, new FireResponseMessage(program.generateMessageId(), program.getName(), requestMessage.getId()));
+            sendMessage(new FireResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(sender), requestMessage.getId()));
         }
     }
 
     private void processFireResponse(Object message) {
         FireResponseMessage responseMessage = (FireResponseMessage) message;
-        AgentId senderLabel = responseMessage.getSenderLabel();
+        AgentId senderLabel = responseMessage.getSender();
 
 //        response som si poslal sam sebe
         if (senderLabel.equals(program.getName())) {            
-            sendMessage(program.getInitialProgramLabel(), new FiringEndedMessage(program.getName()));
+            sendMessage(new FiringEndedMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));
         } else {
 //        vymazem v mape request message, na ktoru prisla odpoved | poslem response ak po vymazani je prazdne pole
             activeMessages.resolveChildMessage(senderLabel, responseMessage.getReferenceId()).entrySet().forEach(resolved -> {
-                sendMessage(resolved.getKey(), new FireResponseMessage(program.generateMessageId(), program.getName(), ((Message) resolved.getValue()).getId()));
+                sendMessage(new FireResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(resolved.getKey()), ((Message) resolved.getValue()).getId()));
             });
         }
     }
@@ -115,9 +118,9 @@ public class PhaseTwo implements Phase {
             });
 
             literalsToSend.entrySet().stream().forEach((entry) -> {
-                Message childMessage = new FireRequestMessage(program.generateMessageId(), program.getName(), entry.getValue());
+                Message childMessage = new FireRequestMessage(program.getName(), program.generateMessageId(), Collections.singleton(entry.getKey()), entry.getValue());
                 activeMessages.addChildMessage(parentRequestMessage, entry.getKey(), childMessage);
-                sendMessage(entry.getKey(), childMessage);
+                sendMessage(childMessage);
             });
             program.getSmallestModel().addAll(newDerived);
         }

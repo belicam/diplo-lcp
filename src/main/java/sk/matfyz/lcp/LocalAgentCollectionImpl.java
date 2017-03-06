@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import sk.matfyz.lcp.api.Agent;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.AgentInfo;
@@ -19,7 +20,11 @@ public class LocalAgentCollectionImpl implements LocalAgentCollection {
 	private Map<AgentId, Agent> agents = new HashMap<AgentId, Agent>();
 	private Collection<DirectoryService> services = new ArrayList<DirectoryService>();
 	
-	@Override
+        public Set<AgentId> getRegisteredAgentIds() {
+            return agents.keySet();
+        }
+
+        @Override
 	public void register(Agent agent) {
 		if (agent == null) {
 			throw new NullPointerException("Agent cannot be null");
@@ -73,5 +78,5 @@ public class LocalAgentCollectionImpl implements LocalAgentCollection {
 			ds.removeAgent(agent.getName());
 		}
 	}
-	
+       	
 }

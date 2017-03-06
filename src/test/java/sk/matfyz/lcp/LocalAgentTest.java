@@ -33,7 +33,8 @@ public class LocalAgentTest {
 		public void act(AgentId rec, String what) {
 			Message msg = new AbstractMessage(
 				getName(),
-				Collections.singleton(rec),
+                                generateMessageId(),
+                                Collections.singleton(rec),
 				what
 			);
 			

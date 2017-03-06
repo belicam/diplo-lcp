@@ -11,8 +11,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import sk.matfyz.belica.messages.Message;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.Message;
+import sk.matfyz.lcp.api.MessageId;
 
 /**
  *
@@ -34,7 +35,7 @@ public class ActiveMessages {
         activeMessages.get(keyMessage).get(programLabel).add(childMessage);
     }
 
-    public Map<AgentId, Object> resolveChildMessage(AgentId senderLabel, int childId) {
+    public Map<AgentId, Object> resolveChildMessage(AgentId senderLabel, MessageId childId) {
         Map<AgentId, Object> resolvedMessages = new HashMap<>();
 
         activeMessages.entrySet().forEach((messagesEntry) -> {
@@ -45,7 +46,7 @@ public class ActiveMessages {
                     messagesEntry.getValue().remove(senderLabel);
                     
                     if (messagesEntry.getValue().isEmpty()) {
-                        AgentId resolvedLabel = ((Message) messagesEntry.getKey()).getSenderLabel();
+                        AgentId resolvedLabel = ((Message) messagesEntry.getKey()).getSender();
                         resolvedMessages.put(resolvedLabel, messagesEntry.getKey());
                     }
                 }

@@ -6,26 +6,29 @@
 package sk.matfyz.belica.messages;
 
 import java.util.List;
+import java.util.Set;
 import sk.matfyz.belica.Literal;
+import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.MessageId;
 
 /**
  *
  * @author martin
  */
-public class GetRequestMessage extends Message {
+public class GetRequestMessage extends AbstractMessage {
     private AgentId initialSender;
     private List<Literal> lits;
     
-    public GetRequestMessage(int id, AgentId senderLabel, AgentId initialSender, List<Literal> lits) {
-        super(id, senderLabel);
+    public GetRequestMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, AgentId initialSender, List<Literal> lits) {
+        super(senderLabel, id, rcpts, null); // TODO doriesit content
         this.initialSender = initialSender;
         this.lits = lits;
     }
     
     @Override
     public String toString() {
-        return "GetRequestMessage: Program#" + getSenderLabel() + " asks for " + getLits();
+        return "GetRequestMessage: Program#" + getSender() + " asks for " + getLits();
     }
 
     /**

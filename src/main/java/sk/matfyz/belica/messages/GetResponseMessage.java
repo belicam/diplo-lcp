@@ -5,21 +5,41 @@
  */
 package sk.matfyz.belica.messages;
 
+import java.util.HashSet;
+import java.util.Set;
+import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.MessageId;
 
 /**
  *
  * @author martin
  */
-public class GetResponseMessage extends Message {
+public class GetResponseMessage extends AbstractMessage {
     
-    public GetResponseMessage(int id, AgentId senderLabel, int requestId) {
-        super(id, senderLabel);
-        this.setReferenceId(requestId);
+    private MessageId referenceId;
+    
+    public GetResponseMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, MessageId idOfRequest) {
+//        super(senderLabel, id, rcpts, idOfRequest.);
+        setReferenceId(idOfRequest);
     }
     
     @Override
     public String toString() {
-        return "GetResponseMessage: Program#" + getSenderLabel() + " responds to get";
+        return "GetResponseMessage: Program#" + getSender() + " responds to get";
+    }
+
+    /**
+     * @return the referenceId
+     */
+    public MessageId getReferenceId() {
+        return referenceId;
+    }
+
+    /**
+     * @param referenceId the referenceId to set
+     */
+    public final void setReferenceId(MessageId referenceId) {
+        this.referenceId = referenceId;
     }
 }

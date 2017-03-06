@@ -5,19 +5,22 @@
  */
 package sk.matfyz.belica.messages;
 
+import java.util.Set;
+import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.MessageId;
 
 /**
  *
  * @author martin
  */
-public class NotifyParticipationRequestMessage extends Message {
-    public NotifyParticipationRequestMessage(int id, AgentId senderLabel) {
-        super(id, senderLabel);
+public class NotifyParticipationRequestMessage extends AbstractMessage {
+    public NotifyParticipationRequestMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts) {
+        super(senderLabel, id, rcpts, null);
     }
     
     @Override
     public String toString() {
-        return "NotifyParticipationRequestMessage: Program#" + getSenderLabel() + " is participating.";
+        return "NotifyParticipationRequestMessage: Program#" + getSender() + " is participating.";
     }
 }

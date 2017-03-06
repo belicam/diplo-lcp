@@ -5,15 +5,18 @@
  */
 package sk.matfyz.belica.messages;
 
+import java.util.Set;
+import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.MessageId;
 
 /**
  *
  * @author martin
  */
-public class NotifyParticipationResponseMessage extends Message {
-    public NotifyParticipationResponseMessage(int id, AgentId senderLabel) {
-        super(id, senderLabel);
+public class NotifyParticipationResponseMessage extends AbstractMessage {
+    public NotifyParticipationResponseMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts) {
+        super(senderLabel, id, rcpts, null);
     }
     
     @Override

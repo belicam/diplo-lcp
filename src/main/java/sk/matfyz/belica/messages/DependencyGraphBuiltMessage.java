@@ -5,14 +5,18 @@
  */
 package sk.matfyz.belica.messages;
 
+import java.util.Set;
+import sk.matfyz.lcp.AbstractMessage;
+import sk.matfyz.lcp.api.AgentId;
+
 /**
  *
  * @author martin
  */
-public class DependencyGraphBuiltMessage extends Message {
+public class DependencyGraphBuiltMessage extends AbstractMessage {
 
-    public DependencyGraphBuiltMessage() {
-        super(-1, null);
+    public DependencyGraphBuiltMessage(Set<AgentId> rcpts) {
+        super(null, null, rcpts, null);
     }
 
     @Override

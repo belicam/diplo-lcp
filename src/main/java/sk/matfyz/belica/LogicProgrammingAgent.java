@@ -6,6 +6,7 @@
 package sk.matfyz.belica;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import sk.matfyz.belica.messages.*;
 import sk.matfyz.lcp.AbstractAgent;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.EventListener;
+import sk.matfyz.lcp.api.Message;
 import sk.matfyz.lcp.api.MessageReceivedEvent;
 import sk.matfyz.lcp.api.Platform;
 
@@ -25,7 +27,6 @@ import sk.matfyz.lcp.api.Platform;
 public class LogicProgrammingAgent extends AbstractAgent implements EventListener<MessageReceivedEvent> {
 
     private AgentId initialProgramLabel = null;
-    private int messageIdCounter = 0;
     private boolean participationConfirmed = false;
 
     private List<Rule> rules = new ArrayList<>();
@@ -49,7 +50,7 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
         processMessage(e.getMessage());
     }
 
-    private void processMessage(Object message) {
+    private void processMessage(Message message) {
         if (message != null) {
             if (message instanceof InitMessage) {
                 processInit();
@@ -70,22 +71,18 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
         this.phase = new PhaseTwo(this);
 
         AgentId label = getName();
-        sendMessage(label, new FireRequestMessage(this.generateMessageId(), label, new HashSet<>()));
+        sendMessage(new FireRequestMessage(label, generateMessageId(), Collections.singleton(label), new HashSet<>()));
     }
 
     private void processDependencyGraphBuilt() {
         AgentId label = getName();
-        sendMessage(participatedPrograms, new ActivationMessage(generateMessageId(), label));
+        sendMessage(new ActivationMessage(label, generateMessageId(), participatedPrograms));
     }
 
     private void processInit() {
         AgentId label = getName();
         this.setInitialProgramLabel(label);
-        sendMessage(label, new GetRequestMessage(generateMessageId(), label, label, new ArrayList<>()));
-    }
-
-    public int generateMessageId() {
-        return this.messageIdCounter++;
+        sendMessage(new GetRequestMessage(label, generateMessageId(), Collections.singleton(label), label, new ArrayList<>()));
     }
 
     public boolean isInitialProgram() {
