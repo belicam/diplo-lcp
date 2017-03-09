@@ -20,13 +20,13 @@ public class GetResponseMessage extends AbstractMessage {
     private MessageId referenceId;
     
     public GetResponseMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, MessageId idOfRequest) {
-//        super(senderLabel, id, rcpts, idOfRequest.);
+        super(senderLabel, id, rcpts, null); // TODO doriesit content
         setReferenceId(idOfRequest);
     }
     
     @Override
     public String toString() {
-        return "GetResponseMessage: Program#" + getSender() + " responds to get";
+        return "GetResponseMessage: " + getSender() + " responds to get";
     }
 
     /**

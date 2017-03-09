@@ -25,7 +25,7 @@ public class FireRequestMessage extends AbstractMessage {
 
     @Override
     public String toString() {
-        return "FireRequestMessage: Program#" + getSender() + " sends " + getLits();
+        return "FireRequestMessage: " + getSender() + " sends " + getLits();
     }
 
     /**

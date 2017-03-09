@@ -5,6 +5,7 @@
  */
 package sk.matfyz.belica.messages;
 
+import com.sun.crypto.provider.RC2Cipher;
 import java.util.Set;
 import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
@@ -22,6 +23,6 @@ public class ActivationMessage extends AbstractMessage {
 
     @Override
     public String toString() {
-        return "ActivationMessage sent from Program#" + getSender() + ".";
+        return "ActivationMessage to " + getRecepients();
     }
 }

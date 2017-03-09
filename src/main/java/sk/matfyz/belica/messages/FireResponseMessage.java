@@ -25,7 +25,7 @@ public class FireResponseMessage extends AbstractMessage {
 
     @Override
     public String toString() {
-        return "FireResponseMessage: Program#" + getSender() + " responds to fire";
+        return "FireResponseMessage: " + getSender() + " responds to fire";
     }
 
     /**

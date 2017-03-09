@@ -22,13 +22,13 @@ public class GetRequestMessage extends AbstractMessage {
     
     public GetRequestMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, AgentId initialSender, List<Literal> lits) {
         super(senderLabel, id, rcpts, null); // TODO doriesit content
-        this.initialSender = initialSender;
-        this.lits = lits;
+        setInitialSender(initialSender);
+        setLits(lits);
     }
     
     @Override
     public String toString() {
-        return "GetRequestMessage: Program#" + getSender() + " asks for " + getLits();
+        return "GetRequestMessage: " + getSender() + " asks for " + getLits();
     }
 
     /**

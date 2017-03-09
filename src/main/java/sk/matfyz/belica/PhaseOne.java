@@ -113,10 +113,15 @@ public class PhaseOne implements Phase {
         });
 
         externals.keySet().forEach(key -> {
-            Message childMessage = new GetRequestMessage(program.getName(), program.generateMessageId(), Collections.singleton(key), initialSender, externals.get(key));
-            program.sendMessage(childMessage);
+            Message childMessage = new GetRequestMessage(
+                    program.getName(), 
+                    program.generateMessageId(), 
+                    Collections.singleton(key), 
+                    initialSender, externals.get(key)
+            );
 
             activeMessages.addChildMessage(parentMessage, key, childMessage);
+            program.sendMessage(childMessage);
         });
         rulesChecked = true;
     }

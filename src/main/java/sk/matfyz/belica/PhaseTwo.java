@@ -93,7 +93,9 @@ public class PhaseTwo implements Phase {
             sendMessage(new FiringEndedMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));
         } else {
 //        vymazem v mape request message, na ktoru prisla odpoved | poslem response ak po vymazani je prazdne pole
-            activeMessages.resolveChildMessage(senderLabel, responseMessage.getReferenceId()).entrySet().forEach(resolved -> {
+            Map<AgentId, Object> resolvedMessages = activeMessages.resolveChildMessage(senderLabel, responseMessage.getReferenceId());
+            
+            resolvedMessages.entrySet().forEach(resolved -> {
                 sendMessage(new FireResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(resolved.getKey()), ((Message) resolved.getValue()).getId()));
             });
         }
@@ -118,7 +120,13 @@ public class PhaseTwo implements Phase {
             });
 
             literalsToSend.entrySet().stream().forEach((entry) -> {
-                Message childMessage = new FireRequestMessage(program.getName(), program.generateMessageId(), Collections.singleton(entry.getKey()), entry.getValue());
+                Message childMessage = new FireRequestMessage(
+                        program.getName(), 
+                        program.generateMessageId(), 
+                        Collections.singleton(entry.getKey()), 
+                        entry.getValue()
+                );
+                
                 activeMessages.addChildMessage(parentRequestMessage, entry.getKey(), childMessage);
                 sendMessage(childMessage);
             });

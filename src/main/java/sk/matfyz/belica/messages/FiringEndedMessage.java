@@ -22,6 +22,6 @@ public class FiringEndedMessage extends AbstractMessage {
         
     @Override
     public String toString() {
-        return "FiringEndedMessage: Program#" + getSender() + " has ended firing.";
+        return "FiringEndedMessage: " + getSender() + " has ended firing.";
     }
 }

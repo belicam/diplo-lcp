@@ -21,6 +21,6 @@ public class NotifyParticipationRequestMessage extends AbstractMessage {
     
     @Override
     public String toString() {
-        return "NotifyParticipationRequestMessage: Program#" + getSender() + " is participating.";
+        return "NotifyParticipationRequestMessage: " + getSender() + " is participating.";
     }
 }

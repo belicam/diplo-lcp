@@ -39,10 +39,12 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
 
     public LogicProgrammingAgent(Platform platform) {
         super(platform, new AgentId());
+        getMessageReceivedSource().addListener(this);
     }
 
     public LogicProgrammingAgent(Platform platform, AgentId name) {
         super(platform, name);
+        getMessageReceivedSource().addListener(this);
     }
 
     @Override
@@ -52,6 +54,7 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
 
     private void processMessage(Message message) {
         if (message != null) {
+            System.out.println("sk.matfyz.belica.LogicProgrammingAgent.processMessage()" + getName() + ": " + message);
             if (message instanceof InitMessage) {
                 processInit();
             } else if (message instanceof ActivationMessage) {
