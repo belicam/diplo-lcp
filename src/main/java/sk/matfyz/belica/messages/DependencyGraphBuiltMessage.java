@@ -21,7 +21,7 @@ public class DependencyGraphBuiltMessage extends AbstractMessage {
 
     @Override
     public String toString() {
-        return "DependencyGraphBuiltMessage";
+        return "DependencyGraphBuiltMessage to " + getRecepients();
     }
 
 }

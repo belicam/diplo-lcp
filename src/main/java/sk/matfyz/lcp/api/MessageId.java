@@ -5,13 +5,15 @@
  */
 package sk.matfyz.lcp.api;
 
+import java.util.Objects;
+
 /**
  *
  * @author martin
  */
 public class MessageId {
 
-    private final long value;
+    private final Long value;
     
     public MessageId(long value) {
         this.value = value;
@@ -20,7 +22,7 @@ public class MessageId {
     /**
      * @return the value
      */
-    public final long getValue() {
+    public final Long getValue() {
         return value;
     }
     
@@ -35,7 +37,7 @@ public class MessageId {
         }
         
         final MessageId other = (MessageId) msgId;
-        return getValue() == other.getValue();
+        return Objects.equals(getValue(), other.getValue());
     }
 
     @Override
@@ -43,5 +45,10 @@ public class MessageId {
         int hash = 7;
         hash = 37 * hash + (int) (this.value ^ (this.value >>> 32));
         return hash;
+    }
+    
+    @Override
+    public String toString() {
+        return getValue().toString();
     }
 }

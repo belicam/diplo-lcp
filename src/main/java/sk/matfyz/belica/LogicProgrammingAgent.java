@@ -54,7 +54,6 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
 
     private void processMessage(Message message) {
         if (message != null) {
-            System.out.println("sk.matfyz.belica.LogicProgrammingAgent.processMessage()" + getName() + ": " + message);
             if (message instanceof InitMessage) {
                 processInit();
             } else if (message instanceof ActivationMessage) {

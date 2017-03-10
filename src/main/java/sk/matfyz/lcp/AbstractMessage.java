@@ -80,7 +80,7 @@ public class AbstractMessage implements Message {
         }
 
         Message msg = (Message) obj;
-        return msg.getSender().equals(getSender()) && (msg.getId() == getId());
+        return msg.getSender().equals(getSender()) && (msg.getId().equals(getId()));
     }
 
     @Override

@@ -21,6 +21,6 @@ public class NotifyParticipationResponseMessage extends AbstractMessage {
     
     @Override
     public String toString() {
-        return "NotifyParticipationResponseMessage";
+        return "NotifyParticipationResponseMessage: " + getSender() + " responds to " + getRecepients();
     }
 }

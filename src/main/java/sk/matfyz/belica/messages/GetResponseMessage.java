@@ -26,7 +26,7 @@ public class GetResponseMessage extends AbstractMessage {
     
     @Override
     public String toString() {
-        return "GetResponseMessage: " + getSender() + " responds to get";
+        return "GetResponseMessage: " + getSender() + " responds to " + getRecepients();
     }
 
     /**

@@ -21,6 +21,6 @@ public class InitMessage extends AbstractMessage {
 
     @Override
     public String toString() {
-        return "InitMessage";
+        return "InitMessage to " + getRecepients();
     }
 }

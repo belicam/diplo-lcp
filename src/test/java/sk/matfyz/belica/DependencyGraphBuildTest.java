@@ -55,12 +55,6 @@ public class DependencyGraphBuildTest {
         p3asked.put(new Constant("agent3:c"), new HashSet<>());
         p3asked.get(new Constant("agent3:c")).add(new AgentId("agent2"));
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(StableModelTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
         Assert.assertEquals(0, p1.getAskedLiterals().size());
         Assert.assertEquals(p2.getAskedLiterals(), p2asked);
         Assert.assertEquals(p3.getAskedLiterals(), p3asked);

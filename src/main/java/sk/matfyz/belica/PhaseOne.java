@@ -70,11 +70,13 @@ public class PhaseOne implements Phase {
             sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
         } else {
             checkRules(message, program.getInitialProgramLabel());
-            sendMessage(new NotifyParticipationRequestMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));
-
+            
+            /* prehodene poradie poslania notifyParticipation a kontoly na prazdne activeMessages (poslanie getresponse) */
             if (activeMessages.noMessages()) {
                 sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
             }
+
+            sendMessage(new NotifyParticipationRequestMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));
         }
     }
 
@@ -114,9 +116,9 @@ public class PhaseOne implements Phase {
 
         externals.keySet().forEach(key -> {
             Message childMessage = new GetRequestMessage(
-                    program.getName(), 
-                    program.generateMessageId(), 
-                    Collections.singleton(key), 
+                    program.getName(),
+                    program.generateMessageId(),
+                    Collections.singleton(key),
                     initialSender, externals.get(key)
             );
 
@@ -128,13 +130,20 @@ public class PhaseOne implements Phase {
 
     private void checkGetResponses() {
         if (program.isParticipationConfirmed() && activeMessages.noMessages()) {
-            if (program.isInitialProgram()) {
+            if (program.isInitialProgram() && resolvedParent.isEmpty()) {
                 sendMessage(new DependencyGraphBuiltMessage(Collections.singleton(program.getName())));
             } else {
                 resolvedParent.entrySet().forEach((parent) -> {
                     MessageId refId = ((Message) parent.getValue()).getId();
-                    sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(parent.getKey()), refId));
+                    Message msg = new GetResponseMessage(
+                            program.getName(),
+                            program.generateMessageId(),
+                            Collections.singleton(parent.getKey()),
+                            refId
+                    );
+                    sendMessage(msg);
                 });
+                resolvedParent.clear();
             }
         }
     }
