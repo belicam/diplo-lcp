@@ -12,6 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sk.matfyz.belica.messages.*;
 import sk.matfyz.lcp.AbstractAgent;
 import sk.matfyz.lcp.api.AgentId;
@@ -24,11 +28,13 @@ import sk.matfyz.lcp.api.Platform;
  *
  * @author martin
  */
-public class LogicProgrammingAgent extends AbstractAgent implements EventListener<MessageReceivedEvent> {
+public class LogicProgrammingAgent extends AbstractAgent implements EventListener<MessageReceivedEvent>, Runnable {
 
     private AgentId initialProgramLabel = null;
     private boolean participationConfirmed = false;
 
+    private final BlockingQueue<Message> messages = new LinkedBlockingQueue<>();
+    
     private List<Rule> rules = new ArrayList<>();
 
     private final Set<AgentId> participatedPrograms = new HashSet<>();
@@ -48,8 +54,20 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
     }
 
     @Override
+    public void run() {
+        while (true) {
+            try {
+                Message msg = getMessages().take();
+                processMessage(msg);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(LogicProgrammingAgent.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    @Override
     public void onEvent(MessageReceivedEvent e) {
-        processMessage(e.getMessage());
+        getMessages().add(e.getMessage());
     }
 
     private void processMessage(Message message) {
@@ -158,4 +176,10 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
         this.participationConfirmed = participationConfirmed;
     }
 
+    /**
+     * @return the messages
+     */
+    public BlockingQueue<Message> getMessages() {
+        return messages;
+    }
 }

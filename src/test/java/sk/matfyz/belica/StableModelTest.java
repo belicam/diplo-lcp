@@ -4,6 +4,9 @@ package sk.matfyz.belica;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 import sk.matfyz.belica.messages.InitMessage;
@@ -47,13 +50,23 @@ public class StableModelTest {
 
         p3.addRule(r);
 
-
-        p1.sendMessage(new InitMessage(p1.getName(), p1.generateMessageId(), Collections.singleton(p1.getName())));
-
         Set<Literal> p1model = new HashSet<>();
         p1model.add(new Constant("agent1:a"));
         p1model.add(new Constant("agent2:b"));
         
+        ExecutorService executor = Executors.newCachedThreadPool();
+        executor.execute(p1);
+        executor.execute(p2);
+        executor.execute(p3);
+        executor.shutdown();
+
+        p1.sendMessage(new InitMessage(p1.getName(), p1.generateMessageId(), Collections.singleton(p1.getName())));
+
+        try {
+            executor.awaitTermination(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+        }
+
         Assert.assertEquals(p1.getSmallestModel(), p1model);
     }
 

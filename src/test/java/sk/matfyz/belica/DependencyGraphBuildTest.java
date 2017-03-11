@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Assert;
@@ -45,8 +48,6 @@ public class DependencyGraphBuildTest {
 
         p3.addRule(r);
 
-        p1.sendMessage(new InitMessage(p1.getName(), p1.generateMessageId(), Collections.singleton(p1.getName())));
-
         Map<Literal, Set<AgentId>> p2asked = new HashMap<>();
         p2asked.put(new Constant("agent2:b"), new HashSet<>());
         p2asked.get(new Constant("agent2:b")).add(new AgentId("agent1"));
@@ -54,6 +55,19 @@ public class DependencyGraphBuildTest {
         Map<Literal, Set<AgentId>> p3asked = new HashMap<>();
         p3asked.put(new Constant("agent3:c"), new HashSet<>());
         p3asked.get(new Constant("agent3:c")).add(new AgentId("agent2"));
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        executor.execute(p1);
+        executor.execute(p2);
+        executor.execute(p3);
+        executor.shutdown();
+
+        p1.sendMessage(new InitMessage(p1.getName(), p1.generateMessageId(), Collections.singleton(p1.getName())));
+
+        try {
+            executor.awaitTermination(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+        }
 
         Assert.assertEquals(0, p1.getAskedLiterals().size());
         Assert.assertEquals(p2.getAskedLiterals(), p2asked);
