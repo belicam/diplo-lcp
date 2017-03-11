@@ -48,7 +48,7 @@ public class StableModelTest {
         p3.addRule(r);
 
 
-        p1.sendMessage(new InitMessage(Collections.singleton(p1.getName())));
+        p1.sendMessage(new InitMessage(p1.getName(), p1.generateMessageId(), Collections.singleton(p1.getName())));
 
         Set<Literal> p1model = new HashSet<>();
         p1model.add(new Constant("agent1:a"));

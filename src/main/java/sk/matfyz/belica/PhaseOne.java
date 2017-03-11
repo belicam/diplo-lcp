@@ -5,12 +5,11 @@
  */
 package sk.matfyz.belica;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import sk.matfyz.belica.messages.*;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.Message;
@@ -57,9 +56,14 @@ public class PhaseOne implements Phase {
         GetRequestMessage request = (GetRequestMessage) message;
         AgentId from = request.getSender();
 
-        program.setInitialProgramLabel(request.getInitialSender());
+        String[] splitContent = request.getContent().split(MessageContentSerializer.CONTENT_DELIMITER);
 
-        request.getLits().forEach(lit -> {
+        Set<Literal> requestedLits = MessageContentSerializer.parseLiterals(splitContent[0]);
+        AgentId initialSender = MessageContentSerializer.parseAgentId(splitContent[1]);
+
+        program.setInitialProgramLabel(initialSender);
+
+        requestedLits.forEach(lit -> {
             if (!program.getAskedLiterals().containsKey(lit)) {
                 program.getAskedLiterals().put(lit, new HashSet<>());
             }
@@ -70,7 +74,7 @@ public class PhaseOne implements Phase {
             sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
         } else {
             checkRules(message, program.getInitialProgramLabel());
-            
+
             /* prehodene poradie poslania notifyParticipation a kontoly na prazdne activeMessages (poslanie getresponse) */
             if (activeMessages.noMessages()) {
                 sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
@@ -81,9 +85,11 @@ public class PhaseOne implements Phase {
     }
 
     private void processGetResponse(Object message) {
-        AgentId from = ((GetResponseMessage) message).getSender();
+        GetResponseMessage msg = (GetResponseMessage) message;
+        AgentId from = msg.getSender();
+        MessageId refId = MessageContentSerializer.parseMessageId(msg.getContent());
 
-        resolvedParent = activeMessages.resolveChildMessage(from, ((GetResponseMessage) message).getReferenceId());
+        resolvedParent = activeMessages.resolveChildMessage(from, refId);
         checkGetResponses();
     }
 
@@ -100,14 +106,14 @@ public class PhaseOne implements Phase {
     }
 
     private void checkRules(Object parentMessage, AgentId initialSender) {
-        Map<AgentId, List<Literal>> externals = new HashMap<>();
+        Map<AgentId, Set<Literal>> externals = new HashMap<>();
 
         program.getRules().forEach(rule -> {
             rule.getBody().stream().forEach(lit -> {
                 AgentId litRef = lit.getProgramLabel();
                 if (!litRef.equals(program.getName())) {
                     if (!externals.containsKey(litRef)) {
-                        externals.put(litRef, new ArrayList<>());
+                        externals.put(litRef, new HashSet<>());
                     }
                     externals.get(litRef).add(lit);
                 }
@@ -119,7 +125,7 @@ public class PhaseOne implements Phase {
                     program.getName(),
                     program.generateMessageId(),
                     Collections.singleton(key),
-                    initialSender, externals.get(key)
+                    externals.get(key), initialSender
             );
 
             activeMessages.addChildMessage(parentMessage, key, childMessage);
@@ -131,7 +137,7 @@ public class PhaseOne implements Phase {
     private void checkGetResponses() {
         if (program.isParticipationConfirmed() && activeMessages.noMessages()) {
             if (program.isInitialProgram() && resolvedParent.isEmpty()) {
-                sendMessage(new DependencyGraphBuiltMessage(Collections.singleton(program.getName())));
+                sendMessage(new DependencyGraphBuiltMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getName())));
             } else {
                 resolvedParent.entrySet().forEach((parent) -> {
                     MessageId refId = ((Message) parent.getValue()).getId();

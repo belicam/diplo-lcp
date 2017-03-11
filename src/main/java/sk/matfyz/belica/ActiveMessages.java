@@ -39,7 +39,7 @@ public class ActiveMessages {
         activeMessages.entrySet().forEach((messagesEntry) -> {
             if (messagesEntry.getValue().containsKey(senderLabel)) {
                 Set<Object> messagesToSender = messagesEntry.getValue().get(senderLabel);
-                messagesToSender.removeIf((childMessage) -> ((Message) childMessage).getId() == childId);
+                messagesToSender.removeIf((childMessage) -> ((Message) childMessage).getId().equals(childId));
                 if (messagesToSender.isEmpty()) {
                     messagesEntry.getValue().remove(senderLabel);
                     

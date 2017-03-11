@@ -8,6 +8,7 @@ package sk.matfyz.belica.messages;
 import java.util.Set;
 import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.MessageId;
 
 /**
  *
@@ -15,8 +16,8 @@ import sk.matfyz.lcp.api.AgentId;
  */
 public class InitMessage extends AbstractMessage {
 
-    public InitMessage(Set<AgentId> rcpts) {
-        super(AgentId.ROOT, null, rcpts, null);
+    public InitMessage(AgentId sender, MessageId id, Set<AgentId> rcpts) {
+        super(sender, id, rcpts, null);
     }
 
     @Override

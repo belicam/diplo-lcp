@@ -7,6 +7,7 @@ package sk.matfyz.belica.messages;
 
 import java.util.HashSet;
 import java.util.Set;
+import sk.matfyz.belica.MessageContentSerializer;
 import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.MessageId;
@@ -17,29 +18,12 @@ import sk.matfyz.lcp.api.MessageId;
  */
 public class GetResponseMessage extends AbstractMessage {
     
-    private MessageId referenceId;
-    
-    public GetResponseMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, MessageId idOfRequest) {
-        super(senderLabel, id, rcpts, null); // TODO doriesit content
-        setReferenceId(idOfRequest);
+    public GetResponseMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, MessageId referenceId) {
+        super(senderLabel, id, rcpts, MessageContentSerializer.stringifyMessageId(referenceId)); // TODO doriesit content
     }
     
     @Override
     public String toString() {
         return "GetResponseMessage: " + getSender() + " responds to " + getRecepients();
-    }
-
-    /**
-     * @return the referenceId
-     */
-    public MessageId getReferenceId() {
-        return referenceId;
-    }
-
-    /**
-     * @param referenceId the referenceId to set
-     */
-    public final void setReferenceId(MessageId referenceId) {
-        this.referenceId = referenceId;
     }
 }

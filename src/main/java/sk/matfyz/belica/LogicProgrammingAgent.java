@@ -84,7 +84,7 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
     private void processInit() {
         AgentId label = getName();
         this.setInitialProgramLabel(label);
-        sendMessage(new GetRequestMessage(label, generateMessageId(), Collections.singleton(label), label, new ArrayList<>()));
+        sendMessage(new GetRequestMessage(label, generateMessageId(), Collections.singleton(label), new HashSet<>(), label));
     }
 
     public boolean isInitialProgram() {

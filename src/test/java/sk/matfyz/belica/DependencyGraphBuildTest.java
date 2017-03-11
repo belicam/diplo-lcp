@@ -45,7 +45,7 @@ public class DependencyGraphBuildTest {
 
         p3.addRule(r);
 
-        p1.sendMessage(new InitMessage(Collections.singleton(p1.getName())));
+        p1.sendMessage(new InitMessage(p1.getName(), p1.generateMessageId(), Collections.singleton(p1.getName())));
 
         Map<Literal, Set<AgentId>> p2asked = new HashMap<>();
         p2asked.put(new Constant("agent2:b"), new HashSet<>());
