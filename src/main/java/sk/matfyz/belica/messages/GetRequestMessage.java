@@ -8,7 +8,6 @@ package sk.matfyz.belica.messages;
 import java.util.List;
 import java.util.Set;
 import sk.matfyz.belica.Literal;
-import sk.matfyz.belica.MessageContentSerializer;
 import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.MessageId;
@@ -18,18 +17,46 @@ import sk.matfyz.lcp.api.MessageId;
  * @author martin
  */
 public class GetRequestMessage extends AbstractMessage {
+    private AgentId initialSender;
+    private Set<Literal> lits;
     
     public GetRequestMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, Set<Literal> lits, AgentId initialSender) {
-        super(senderLabel, id, rcpts, null);
-
-        String strLits = MessageContentSerializer.stringifyLiterals(lits);
-        String strAgentId = MessageContentSerializer.stringifyAgentId(initialSender);
-        
-        setContent(strLits + MessageContentSerializer.CONTENT_DELIMITER + strAgentId);
+        super(senderLabel, id, rcpts, null); // TODO doriesit content
+        setInitialSender(initialSender);
+        setLits(lits);
     }
     
     @Override
     public String toString() {
-        return "GetRequestMessage: " + getSender() + " asks for " + getContent();
+        return "GetRequestMessage: " + getSender() + " asks for " + getLits();
     }
+
+    /**
+     * @return the lits
+     */
+    public Set<Literal> getLits() {
+        return lits;
+    }
+
+    /**
+     * @param lits the lits to set
+     */
+    public void setLits(Set<Literal> lits) {
+        this.lits = lits;
+    }
+
+    /**
+     * @return the initialSender
+     */
+    public AgentId getInitialSender() {
+        return initialSender;
+    }
+
+    /**
+     * @param initialSender the initialSender to set
+     */
+    public void setInitialSender(AgentId initialSender) {
+        this.initialSender = initialSender;
+    }
+
 }

@@ -69,7 +69,7 @@ public class MessageTransportServiceImpl implements MessageTransportService {
 
 	@Override
 	public void sendMessage(Message msg) {
-                System.out.println(msg + " #MessageId: " + msg.getId());
+                System.out.println(msg);
 		for (AgentId receiverId : msg.getRecepients()) {
 			sendMessageTo(msg, receiverId);
 		}		

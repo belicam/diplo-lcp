@@ -6,6 +6,7 @@
 package sk.matfyz.belica;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import sk.matfyz.belica.solver.Cache;
 import sk.matfyz.belica.solver.NodeLiteral;
@@ -53,8 +54,9 @@ public class Rule {
         this.head = head;
     }
 
-    public void addToBody(Literal l) {
-        this.body.add(l);
+    public Rule addToBody(Literal ...lit) {
+        this.body.addAll(Arrays.asList(lit));
+        return this;
     }
 
     /**
@@ -71,6 +73,7 @@ public class Rule {
         this.body = body;
     }
 
+    @Override
     public String toString() {
         String h = this.head == null ? "" : this.head.toString();
         String b = this.body.isEmpty() ? "" : this.body.toString();
@@ -97,5 +100,11 @@ public class Rule {
             }
         }
         return true;
+    }
+    
+    public static Rule createRuleHead(Literal lit) {
+        Rule r = new Rule();
+        r.setHead(lit);
+        return r;
     }
 }

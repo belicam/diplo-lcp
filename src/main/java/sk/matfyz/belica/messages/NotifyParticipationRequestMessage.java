@@ -15,6 +15,7 @@ import sk.matfyz.lcp.api.MessageId;
  * @author martin
  */
 public class NotifyParticipationRequestMessage extends AbstractMessage {
+    
     public NotifyParticipationRequestMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts) {
         super(senderLabel, id, rcpts, null);
     }

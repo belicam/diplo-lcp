@@ -5,13 +5,14 @@
  */
 package sk.matfyz.lcp.api;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  *
  * @author martin
  */
-public class MessageId {
+public class MessageId implements Serializable {
 
     private final Long value;
     

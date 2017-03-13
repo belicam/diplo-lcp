@@ -5,17 +5,19 @@
  */
 package sk.matfyz.belica;
 
+import java.io.Serializable;
 import sk.matfyz.lcp.api.AgentId;
 
 /**
  *
  * @author martin
  */
-public abstract class Literal implements Comparable<Literal> {
+public abstract class Literal implements Comparable<Literal>, Serializable {
+
     protected String value;
     private AgentId programLabel;
-    
-        /**
+
+    /**
      * @return the value
      */
     public String getValue() {

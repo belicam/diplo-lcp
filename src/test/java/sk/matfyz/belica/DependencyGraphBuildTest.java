@@ -31,22 +31,9 @@ public class DependencyGraphBuildTest {
         LogicProgrammingAgent p2 = new LogicProgrammingAgent(platform, new AgentId("agent2"));
         LogicProgrammingAgent p3 = new LogicProgrammingAgent(platform, new AgentId("agent3"));
 
-        Rule r = new Rule();
-        r.setHead(new Constant("agent1:a"));
-        r.addToBody(new Constant("agent2:b"));
-
-        p1.addRule(r);
-
-        r = new Rule();
-        r.setHead(new Constant("agent2:b"));
-        r.addToBody(new Constant("agent3:c"));
-
-        p2.addRule(r);
-
-        r = new Rule();
-        r.setHead(new Constant("agent3:c"));
-
-        p3.addRule(r);
+        p1.addRule(Rule.createRuleHead(new Constant("agent1:a")).addToBody(new Constant("agent2:b")));
+        p2.addRule(Rule.createRuleHead(new Constant("agent2:b")).addToBody(new Constant("agent3:c")));
+        p3.addRule(Rule.createRuleHead(new Constant("agent3:c")));
 
         Map<Literal, Set<AgentId>> p2asked = new HashMap<>();
         p2asked.put(new Constant("agent2:b"), new HashSet<>());

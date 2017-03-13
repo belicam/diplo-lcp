@@ -23,6 +23,7 @@ public class Constant extends Literal {
         return (this.value.equals(((Constant) t).value) ? 0 : -1);
     }
 
+    @Override
     public String toString() {
         return this.value;
     }
@@ -34,9 +35,6 @@ public class Constant extends Literal {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
         if (obj == null) {
             return false;
         }

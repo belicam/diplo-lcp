@@ -1,8 +1,9 @@
 package sk.matfyz.lcp.api;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class AgentId {
+public class AgentId implements Serializable {
 	
 	public final static AgentId ROOT = null;
 	private final static char DELIMITER = '.';

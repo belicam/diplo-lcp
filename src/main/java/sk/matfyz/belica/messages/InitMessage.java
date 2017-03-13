@@ -16,8 +16,8 @@ import sk.matfyz.lcp.api.MessageId;
  */
 public class InitMessage extends AbstractMessage {
 
-    public InitMessage(AgentId sender, MessageId id, Set<AgentId> rcpts) {
-        super(sender, id, rcpts, null);
+    public InitMessage(AgentId sender, MessageId messageId, Set<AgentId> rcpts) {
+        super(sender, messageId, rcpts, null);
     }
 
     @Override

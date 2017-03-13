@@ -5,9 +5,11 @@
  */
 package sk.matfyz.belica;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import sk.matfyz.belica.messages.*;
@@ -56,14 +58,9 @@ public class PhaseOne implements Phase {
         GetRequestMessage request = (GetRequestMessage) message;
         AgentId from = request.getSender();
 
-        String[] splitContent = request.getContent().split(MessageContentSerializer.CONTENT_DELIMITER);
+        program.setInitialProgramLabel(request.getInitialSender());
 
-        Set<Literal> requestedLits = MessageContentSerializer.parseLiterals(splitContent[0]);
-        AgentId initialSender = MessageContentSerializer.parseAgentId(splitContent[1]);
-
-        program.setInitialProgramLabel(initialSender);
-
-        requestedLits.forEach(lit -> {
+        request.getLits().forEach(lit -> {
             if (!program.getAskedLiterals().containsKey(lit)) {
                 program.getAskedLiterals().put(lit, new HashSet<>());
             }
@@ -75,7 +72,6 @@ public class PhaseOne implements Phase {
         } else {
             checkRules(message, program.getInitialProgramLabel());
 
-            /* prehodene poradie poslania notifyParticipation a kontoly na prazdne activeMessages (poslanie getresponse) */
             if (activeMessages.noMessages()) {
                 sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
             }
@@ -85,11 +81,9 @@ public class PhaseOne implements Phase {
     }
 
     private void processGetResponse(Object message) {
-        GetResponseMessage msg = (GetResponseMessage) message;
-        AgentId from = msg.getSender();
-        MessageId refId = MessageContentSerializer.parseMessageId(msg.getContent());
+        AgentId from = ((GetResponseMessage) message).getSender();
 
-        resolvedParent = activeMessages.resolveChildMessage(from, refId);
+        resolvedParent = activeMessages.resolveChildMessage(from, ((GetResponseMessage) message).getReferenceId());
         checkGetResponses();
     }
 
@@ -97,7 +91,14 @@ public class PhaseOne implements Phase {
         AgentId senderLabel = ((NotifyParticipationRequestMessage) message).getSender();
 
         program.getParticipatedPrograms().add(senderLabel);
-        sendMessage(new NotifyParticipationResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(senderLabel)));
+
+        Message msg = new NotifyParticipationResponseMessage(
+                program.getName(),
+                program.generateMessageId(),
+                Collections.singleton(senderLabel)
+        );
+
+        sendMessage(msg);
     }
 
     private void processNotifyParticipationResponse(Object message) {
@@ -137,7 +138,13 @@ public class PhaseOne implements Phase {
     private void checkGetResponses() {
         if (program.isParticipationConfirmed() && activeMessages.noMessages()) {
             if (program.isInitialProgram() && resolvedParent.isEmpty()) {
-                sendMessage(new DependencyGraphBuiltMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getName())));
+                Message msg = new DependencyGraphBuiltMessage(
+                        program.getName(),
+                        program.generateMessageId(),
+                        Collections.singleton(program.getName())
+                );
+
+                sendMessage(msg);
             } else {
                 resolvedParent.entrySet().forEach((parent) -> {
                     MessageId refId = ((Message) parent.getValue()).getId();

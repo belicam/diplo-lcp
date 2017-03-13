@@ -15,7 +15,6 @@ import sk.matfyz.belica.messages.*;
 import sk.matfyz.belica.solver.TreeSolver;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.Message;
-import sk.matfyz.lcp.api.MessageId;
 
 /**
  *
@@ -73,8 +72,7 @@ public class PhaseTwo implements Phase {
 
     private void processFireRequest(Object message) {
         FireRequestMessage requestMessage = (FireRequestMessage) message;
-//        Set<Literal> obtainedLiterals = requestMessage.getLits();
-        Set<Literal> obtainedLiterals = MessageContentSerializer.parseLiterals(requestMessage.getContent());
+        Set<Literal> obtainedLiterals = requestMessage.getLits();
         AgentId sender = requestMessage.getSender();
         
         program.getSmallestModel().addAll(obtainedLiterals);
@@ -89,14 +87,13 @@ public class PhaseTwo implements Phase {
     private void processFireResponse(Object message) {
         FireResponseMessage responseMessage = (FireResponseMessage) message;
         AgentId senderLabel = responseMessage.getSender();
-        MessageId referenceMessageId = MessageContentSerializer.parseMessageId(responseMessage.getContent());
 
 //        response som si poslal sam sebe
         if (senderLabel.equals(program.getName())) {            
             sendMessage(new FiringEndedMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));
         } else {
 //        vymazem v mape request message, na ktoru prisla odpoved | poslem response ak po vymazani je prazdne pole
-            Map<AgentId, Object> resolvedMessages = activeMessages.resolveChildMessage(senderLabel, referenceMessageId);
+            Map<AgentId, Object> resolvedMessages = activeMessages.resolveChildMessage(senderLabel, responseMessage.getReferenceId());
             
             resolvedMessages.entrySet().forEach(resolved -> {
                 sendMessage(new FireResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(resolved.getKey()), ((Message) resolved.getValue()).getId()));

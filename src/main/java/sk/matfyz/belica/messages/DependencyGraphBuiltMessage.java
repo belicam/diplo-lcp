@@ -16,8 +16,8 @@ import sk.matfyz.lcp.api.MessageId;
  */
 public class DependencyGraphBuiltMessage extends AbstractMessage {
 
-    public DependencyGraphBuiltMessage(AgentId sender, MessageId messageId, Set<AgentId> rcpts) {
-        super(sender, messageId, rcpts, null);
+    public DependencyGraphBuiltMessage(AgentId sender, MessageId id, Set<AgentId> rcpts) {
+        super(sender, id, rcpts, null);
     }
 
     @Override
