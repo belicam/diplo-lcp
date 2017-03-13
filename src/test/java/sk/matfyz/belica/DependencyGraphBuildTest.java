@@ -52,7 +52,7 @@ public class DependencyGraphBuildTest {
         p1.sendMessage(new InitMessage(p1.getName(), p1.generateMessageId(), Collections.singleton(p1.getName())));
 
         try {
-            executor.awaitTermination(2, TimeUnit.SECONDS);
+            executor.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
         }
 
