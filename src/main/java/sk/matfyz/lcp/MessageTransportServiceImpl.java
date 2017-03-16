@@ -36,7 +36,7 @@ public class MessageTransportServiceImpl implements MessageTransportService {
 	private void sendMessageTo(Message msg, AgentId receiver) {
 		LocalAgentCollection local = platform.getLocalAgentCollection();
 		
-		Agent agent = local.isLocal(receiver);
+		Agent agent = local.contains(receiver);
 		
 		if (agent != null) {
 			sendLocal(msg, agent);
