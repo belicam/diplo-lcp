@@ -19,7 +19,7 @@ import sk.matfyz.lcp.api.LocalAgentCollection;
 public class LocalAgentCollectionImpl implements LocalAgentCollection {
 
     private Map<AgentId, Agent> agents = new HashMap<AgentId, Agent>();
-    private Collection<DirectoryService> services = new ArrayList<DirectoryService>();
+//    private DirectoryService directoryService = new DirectoryServiceImpl();
     private DiscoveryService discoveryService = new DiscoveryServiceImpl();
 
     public Set<AgentId> getRegisteredAgentIds() {
@@ -51,32 +51,18 @@ public class LocalAgentCollectionImpl implements LocalAgentCollection {
         return agents.get(id);
     }
 
-    public void register(DirectoryService ds) {
-        if (ds == null) {
-            throw new NullPointerException("ds cannot be null");
-        }
-
-        services.add(ds);
-    }
-
-    public void deregister(DirectoryService ds) {
-        if (ds == null) {
-            throw new NullPointerException("ds cannot be null");
-        }
-
-        services.remove(ds);
-    }
-
     private void notifyAdd(Agent agent) {
-        for (DirectoryService ds : services) {
-            ds.updateAgent(new AgentInfo(agent.getName()));
+        if (discoveryService == null) {
+            throw new NullPointerException("ds cannot be null");            
         }
+        discoveryService.registerLocalAgent(agent);
     }
 
     private void notifyRemove(Agent agent) {
-        for (DirectoryService ds : services) {
-            ds.removeAgent(agent.getName());
+        if (discoveryService == null) {
+            throw new NullPointerException("ds cannot be null");            
         }
+        discoveryService.deregisterLocalAgent(agent);        
     }
 
 }
