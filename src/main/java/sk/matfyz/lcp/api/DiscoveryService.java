@@ -7,5 +7,7 @@ public interface DiscoveryService {
         
         public void registerLocalAgent(Agent agent);
         public void deregisterLocalAgent(Agent agent);
+        
+        public void registerDiscovery(Discovery d);
 
 }

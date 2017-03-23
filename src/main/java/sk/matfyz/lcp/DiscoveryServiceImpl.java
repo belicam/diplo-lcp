@@ -55,4 +55,9 @@ public class DiscoveryServiceImpl implements DiscoveryService {
     public void deregisterLocalAgent(Agent agent) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public void registerDiscovery(Discovery d) {
+        channels.add(d);
+    }
 }

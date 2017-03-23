@@ -19,8 +19,7 @@ import sk.matfyz.lcp.api.LocalAgentCollection;
 public class LocalAgentCollectionImpl implements LocalAgentCollection {
 
     private Map<AgentId, Agent> agents = new HashMap<AgentId, Agent>();
-//    private DirectoryService directoryService = new DirectoryServiceImpl();
-    private DiscoveryService discoveryService = new DiscoveryServiceImpl();
+    private DiscoveryService discoveryService;
 
     public Set<AgentId> getRegisteredAgentIds() {
         return agents.keySet();
@@ -53,16 +52,34 @@ public class LocalAgentCollectionImpl implements LocalAgentCollection {
 
     private void notifyAdd(Agent agent) {
         if (discoveryService == null) {
-            throw new NullPointerException("ds cannot be null");            
+            throw new NullPointerException("ds cannot be null");
         }
         discoveryService.registerLocalAgent(agent);
     }
 
     private void notifyRemove(Agent agent) {
         if (discoveryService == null) {
-            throw new NullPointerException("ds cannot be null");            
+            throw new NullPointerException("ds cannot be null");
         }
-        discoveryService.deregisterLocalAgent(agent);        
+        discoveryService.deregisterLocalAgent(agent);
+    }
+
+    @Override
+    public void register(DiscoveryService ds) {
+        if (ds == null) {
+            throw new NullPointerException("ds cannot be null");
+        }
+
+        discoveryService = ds;
+    }
+
+    @Override
+    public void deregister(DiscoveryService ds) {
+        if (ds == null) {
+            throw new NullPointerException("ds cannot be null");
+        }
+
+        discoveryService = null;
     }
 
 }

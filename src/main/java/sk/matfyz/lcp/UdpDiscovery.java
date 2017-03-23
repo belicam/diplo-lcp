@@ -5,7 +5,6 @@
  */
 package sk.matfyz.lcp;
 
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -25,8 +24,8 @@ public class UdpDiscovery implements Discovery {
 
     final int SOCKET_PORT = 8888;
 
-    Collection<AgentInfo> localAgents = new ArrayList<>(); // ku kazdemu agentovi treba timestamp
-    Collection<AgentInfo> externalAgents = new ArrayList<>(); // ku kazdemu agentovi treba timestamp
+    private Collection<AgentInfo> localAgents = new ArrayList<>(); // ku kazdemu agentovi treba timestamp
+    private Collection<AgentInfo> externalAgents = new ArrayList<>(); // ku kazdemu agentovi treba timestamp
 
     DatagramSocket socket;
 
@@ -56,5 +55,13 @@ public class UdpDiscovery implements Discovery {
         } catch (UnknownHostException ex) {
             Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public Collection<AgentInfo> getLocalAgents() {
+        return localAgents;
+    }
+
+    public Collection<AgentInfo> getExternalAgents() {
+        return externalAgents;
     }
 }
