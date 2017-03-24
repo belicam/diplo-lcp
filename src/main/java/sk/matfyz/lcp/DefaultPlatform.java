@@ -16,7 +16,7 @@ public class DefaultPlatform implements Platform {
 
     public DefaultPlatform() {
         Discovery udpChannel = new UdpDiscovery();
-
+        
         diss.registerDiscovery(udpChannel);
 
         lac.register(diss);

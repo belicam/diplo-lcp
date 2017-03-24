@@ -58,6 +58,8 @@ public class DiscoveryServiceImpl implements DiscoveryService {
     
     @Override
     public void registerDiscovery(Discovery d) {
+        new Thread(d).start();
+
         channels.add(d);
     }
 }

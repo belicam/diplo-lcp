@@ -5,6 +5,8 @@
  */
 package sk.matfyz.lcp;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -28,6 +30,8 @@ public class UdpDiscovery implements Discovery {
     private Collection<AgentInfo> externalAgents = new ArrayList<>(); // ku kazdemu agentovi treba timestamp
 
     DatagramSocket socket;
+    byte[] buf = new byte[1000];
+    DatagramPacket dp = new DatagramPacket(buf, buf.length);
 
     public UdpDiscovery() {
         try {
@@ -40,23 +44,54 @@ public class UdpDiscovery implements Discovery {
 
     @Override
     public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("sk.matfyz.lcp.UdpDiscovery.run()");
 //        listen na porte => pri zachyteni packetu ukladat agentov do externalAgents
+        Thread sendingThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        broadcast();
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+        
+        sendingThread.start();
+
+        while (true) {
+            try {              
+                socket.receive(dp);
+                receiveData(dp);
+            } catch (IOException ex) {
+                Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
     public void broadcast() {
         try {
 //            vytvorit packet obsahujuci kolekciu localAgents => broadcastnut
+            String msg = "hi";
 
             InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
-//            DatagramPacket packet = new DatagramPacket(bytes, bytes.length, SOCKET_PORT, broadcastAddress);
-//            socket.send(packet);
+            DatagramPacket packet = new DatagramPacket(msg.getBytes(), msg.getBytes().length, broadcastAddress, SOCKET_PORT);
+            
+            System.out.println(InetAddress.getLocalHost().getHostAddress() + " sent: " + msg);
+            
+            socket.send(packet);
         } catch (UnknownHostException ex) {
+            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public Collection<AgentInfo> getLocalAgents() {
         return localAgents;
     }
@@ -64,4 +99,9 @@ public class UdpDiscovery implements Discovery {
     public Collection<AgentInfo> getExternalAgents() {
         return externalAgents;
     }
+    
+    private void receiveData(DatagramPacket dp) {
+        System.out.println("recieved from " + dp.getAddress() + ": " + new String(dp.getData(), 0 , dp.getLength()));
+    }
+
 }
