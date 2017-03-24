@@ -42,12 +42,12 @@ public class DiscoveryServiceImpl implements DiscoveryService {
 
 //        nastavit adresy pre kazdy kanal
         for (Discovery channel : channels) {
-
+//            ainfo.getTransportAddresses().add(channel.getUrl());
         }
 
 //        pridat agentInfo do jednotlivych discovery 
         for (Discovery channel : channels) {
-
+            channel.registerLocalAgent(ainfo);
         }
     }
 

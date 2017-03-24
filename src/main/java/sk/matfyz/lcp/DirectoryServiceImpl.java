@@ -2,6 +2,7 @@ package sk.matfyz.lcp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import sk.matfyz.lcp.api.AgentAddedEvent;
 import sk.matfyz.lcp.api.AgentChangedEvent;
 import sk.matfyz.lcp.api.AgentId;
@@ -19,7 +20,7 @@ import sk.matfyz.lcp.api.EventSource;
  */
 public class DirectoryServiceImpl implements DirectoryService {
 	
-	private Map<AgentId, AgentInfo> agents = new HashMap<AgentId, AgentInfo>();
+	private final Map<AgentId, AgentInfo> agents = new ConcurrentHashMap<>();
 
 	private final EventSource<AgentAddedEvent> agentAddedEventSource = new EventSourceImpl<AgentAddedEvent>();
 	private final EventSource<AgentRemovedEvent> agentRemovedEventSource = new EventSourceImpl<AgentRemovedEvent>();

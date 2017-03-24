@@ -27,10 +27,10 @@ public class MainTest {
     public static void main(String[] arg) {
         Platform platform = new DefaultPlatform();
 
-//        LogicProgrammingAgent p1 = new LogicProgrammingAgent(platform, new AgentId("agent1"));
-//        LogicProgrammingAgent p2 = new LogicProgrammingAgent(platform, new AgentId("agent2"));
-//        LogicProgrammingAgent p3 = new LogicProgrammingAgent(platform, new AgentId("agent3"));
-//
+        LogicProgrammingAgent p1 = new LogicProgrammingAgent(platform, new AgentId("agent1"));
+        LogicProgrammingAgent p2 = new LogicProgrammingAgent(platform, new AgentId("agent2"));
+        LogicProgrammingAgent p3 = new LogicProgrammingAgent(platform, new AgentId("agent3"));
+
 //        p1.addRule(Rule.createRuleHead(new Constant("agent1:a")).addToBody(new Constant("agent2:b")));
 //        p2.addRule(Rule.createRuleHead(new Constant("agent2:b")).addToBody(new Constant("agent3:c")));
 //        p3.addRule(Rule.createRuleHead(new Constant("agent3:c")));

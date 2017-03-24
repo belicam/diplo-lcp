@@ -1,14 +1,10 @@
 package sk.matfyz.lcp;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import sk.matfyz.lcp.api.Agent;
 import sk.matfyz.lcp.api.AgentId;
-import sk.matfyz.lcp.api.AgentInfo;
-import sk.matfyz.lcp.api.DirectoryService;
 import sk.matfyz.lcp.api.DiscoveryService;
 import sk.matfyz.lcp.api.LocalAgentCollection;
 

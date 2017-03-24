@@ -1,12 +1,14 @@
 package sk.matfyz.lcp.api;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-public class AgentInfo {
+public class AgentInfo implements Serializable {
 
     private final AgentId id;
     private final Set<String> flags = new HashSet<String>();
@@ -52,4 +54,36 @@ public class AgentInfo {
         this.services.addAll(agent.services);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final AgentInfo other = (AgentInfo) obj;
+
+        if (!Objects.equals(this.id, other.id) 
+                || !Objects.equals(this.flags, other.flags) 
+                || !Objects.equals(this.services, other.services) 
+                || !Objects.equals(this.addresses, other.addresses)) {
+            return false;
+        }
+        
+        return true;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 83 * hash + Objects.hashCode(this.id);
+        hash = 83 * hash + Objects.hashCode(this.flags);
+        hash = 83 * hash + Objects.hashCode(this.services);
+        hash = 83 * hash + Objects.hashCode(this.addresses);
+        return hash;
+    }
 }
