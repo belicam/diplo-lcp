@@ -42,7 +42,7 @@ public class DiscoveryServiceImpl implements DiscoveryService {
 
 //        nastavit adresy pre kazdy kanal
         for (Discovery channel : channels) {
-//            ainfo.getTransportAddresses().add(channel.getUrl());
+            ainfo.getTransportAddresses().add(channel.getTransportAddress());
         }
 
 //        pridat agentInfo do jednotlivych discovery 
@@ -53,13 +53,18 @@ public class DiscoveryServiceImpl implements DiscoveryService {
 
     @Override
     public void deregisterLocalAgent(Agent agent) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (Discovery channel : channels) {
+            channel.deregisterLocalAgent(agent.getName());
+        }
     }
     
     @Override
     public void registerDiscovery(Discovery d) {
-        new Thread(d).start();
-
         channels.add(d);
+    }
+
+    @Override
+    public void registerExternalAgent(AgentInfo agent) {
+        directoryService.updateAgent(agent);
     }
 }

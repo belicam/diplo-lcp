@@ -16,17 +16,24 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.AgentInfo;
 import sk.matfyz.lcp.api.Discovery;
+import sk.matfyz.lcp.api.DiscoveryService;
+import sk.matfyz.lcp.api.TransportAddress;
 
 /**
  *
@@ -34,31 +41,40 @@ import sk.matfyz.lcp.api.Discovery;
  */
 public class UdpDiscovery implements Discovery {
 
+    private DiscoveryService ds;
+
+    final String PROTOCOL = "udp";
     final int SOCKET_PORT = 8888;
+
     final int MAX_DATA_SIZE = 65507; // 65535 - 20(ip header) - 8(udp header)
 
-    private Map<AgentInfo, Timestamp> localAgents = new ConcurrentHashMap<>(); 
-    private Map<AgentInfo, Timestamp> externalAgents = new ConcurrentHashMap<>(); 
+    private Map<AgentInfo, Timestamp> localAgents = new ConcurrentHashMap<>();
 
-    DatagramSocket socket;
-    byte[] buf = new byte[MAX_DATA_SIZE];
-    DatagramPacket dp = new DatagramPacket(buf, buf.length);
+    private DatagramSocket socket;
+    private byte[] buf = new byte[MAX_DATA_SIZE];
+    private DatagramPacket dp = new DatagramPacket(buf, buf.length);
 
-    public UdpDiscovery() {
+    private Thread sendingThread;
+    private Thread receivingThread;
+
+    public UdpDiscovery(DiscoveryService ds) {
+        this.ds = ds;
+
         try {
             socket = new DatagramSocket(SOCKET_PORT);
             socket.setBroadcast(true);
         } catch (SocketException ex) {
             Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        setupThreads();
     }
 
-    @Override
-    public void run() {
-        Thread sendingThread = new Thread(() -> {
+    private void setupThreads() {
+        sendingThread = new Thread(() -> {
             while (true) {
                 try {
-                    broadcast();
+                    broadcast(localAgents.keySet());
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
@@ -66,30 +82,57 @@ public class UdpDiscovery implements Discovery {
             }
         });
 
-        sendingThread.start();
-
-        while (true) {
-            try {
-                socket.receive(dp);
-                receiveData(dp);
-            } catch (IOException ex) {
-                Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+        receivingThread = new Thread(() -> {
+            while (true) {
+                try {
+                    socket.receive(dp);
+                    receiveData(dp);
+                } catch (IOException ex) {
+                    Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-        }
+        });
+
     }
 
     @Override
-    public void broadcast() {
-        // TODO kontrola, ci sa cela kolekcia do packetu zmesti
+    public void start() {
+        sendingThread.start();
+        receivingThread.start();
+    }
+
+    @Override
+    public void stop() {
+        sendingThread.interrupt();
+        receivingThread.interrupt();
+    }
+
+    @Override
+    public void broadcast(Collection<AgentInfo> agentsToBroadcast) {
         try {
-            byte[] msg = serializeAgents(localAgents.keySet());
+            List<AgentInfo> agentsList = new ArrayList<>(agentsToBroadcast);
+            byte[] msg = serializeAgents(agentsList);
+            
+            while (msg.length > MAX_DATA_SIZE) {
+                agentsList.remove(agentsList.size() - 1);
+                msg = serializeAgents(agentsList);
+            }
 
             InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
             DatagramPacket packet = new DatagramPacket(msg, msg.length, broadcastAddress, SOCKET_PORT);
 
-            System.out.println(InetAddress.getLocalHost().getHostAddress() + " sent: " + localAgents);
+            System.out.println(InetAddress.getLocalHost().getHostAddress() + " sent: " + agentsList.size());
 
             socket.send(packet);
+
+            List<AgentInfo> remainingAgents = agentsToBroadcast
+                    .stream()
+                    .filter((ainfo) -> !agentsList.contains(ainfo))
+                    .collect(Collectors.toList());
+
+            if (!remainingAgents.isEmpty()) {
+                broadcast(remainingAgents);
+            }
         } catch (UnknownHostException ex) {
             Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -135,18 +178,13 @@ public class UdpDiscovery implements Discovery {
                     in.close();
                 }
             } catch (IOException ex) {
-                // ignore close exception
             }
         }
-        return (Set<AgentInfo>) o;
+        return (Collection<AgentInfo>) o;
     }
 
     public Map<AgentInfo, Timestamp> getLocalAgents() {
         return localAgents;
-    }
-
-    public Map<AgentInfo, Timestamp> getExternalAgents() {
-        return externalAgents;
     }
 
     private void receiveData(DatagramPacket dp) {
@@ -156,9 +194,8 @@ public class UdpDiscovery implements Discovery {
         Collection<AgentInfo> recievedAgents = deserializeAgents(data);
 
         recievedAgents.forEach((ainfo) -> {
-            externalAgents.put(ainfo, new Timestamp(System.currentTimeMillis()));
+            ds.registerExternalAgent(ainfo);
         });
-        System.out.println("recieved from " + dp.getAddress() + ": " + externalAgents);
     }
 
     @Override
@@ -167,8 +204,19 @@ public class UdpDiscovery implements Discovery {
     }
 
     @Override
-    public URL getURL() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public TransportAddress getTransportAddress() {
+        try {
+            return new TransportAddress(PROTOCOL, InetAddress.getLocalHost().getHostAddress(), SOCKET_PORT);
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+
+    @Override
+    public void deregisterLocalAgent(AgentId agentId) {
+        AgentInfo agentInfo = new AgentInfo(agentId);
+        localAgents.remove(agentInfo);
     }
 
 }

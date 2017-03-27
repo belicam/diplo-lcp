@@ -1,9 +1,12 @@
 package sk.matfyz.lcp.api;
 
-import java.net.URL;
+import java.util.Collection;
 
-public interface Discovery extends Runnable {
-    void broadcast();
+public interface Discovery {
+    public void start();
+    public void stop();
+    void broadcast(Collection<AgentInfo> agentsToBroadcast);
     void registerLocalAgent(AgentInfo a);
-    URL getURL();
+    void deregisterLocalAgent(AgentId agentId);
+    TransportAddress getTransportAddress();
 }

@@ -7,6 +7,6 @@ import java.util.Set;
 public interface Envelope extends Serializable {
 	
 	public Message getMessage();
-	public Set<URL> getRecipients();
+	public Set<TransportAddress> getRecipients();
 	
 }

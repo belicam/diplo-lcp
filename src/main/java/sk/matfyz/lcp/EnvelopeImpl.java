@@ -8,6 +8,7 @@ import java.util.Set;
 
 import sk.matfyz.lcp.api.Envelope;
 import sk.matfyz.lcp.api.Message;
+import sk.matfyz.lcp.api.TransportAddress;
 
 /**
  *
@@ -18,14 +19,14 @@ public class EnvelopeImpl implements Envelope {
 	private static final long serialVersionUID = 8610242798938182193L;
 	
 	private final Message message;
-	private final Set<URL> recipients = new HashSet<URL>();
+	private final Set<TransportAddress> recipients = new HashSet<TransportAddress>();
 	
-	public EnvelopeImpl(Message message, URL...receipients) {
+	public EnvelopeImpl(Message message, TransportAddress...receipients) {
 		if (message == null) {
 			throw new NullPointerException();
 		}
 		
-		List<URL> list = Arrays.asList(receipients);
+		List<TransportAddress> list = Arrays.asList(receipients);
 		
 		if (list.contains(null)) {
 			throw new NullPointerException();
@@ -41,7 +42,7 @@ public class EnvelopeImpl implements Envelope {
 	}
 
 	@Override
-	public final Set<URL> getRecipients() {
+	public final Set<TransportAddress> getRecipients() {
 		return recipients;
 	}
 

@@ -5,16 +5,10 @@
  */
 package sk.matfyz.belica;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import sk.matfyz.belica.messages.InitMessage;
+import java.util.ArrayList;
+import java.util.List;
 import sk.matfyz.lcp.DefaultPlatform;
+import sk.matfyz.lcp.api.Agent;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.Platform;
 
@@ -27,9 +21,10 @@ public class MainTest {
     public static void main(String[] arg) {
         Platform platform = new DefaultPlatform();
 
-        LogicProgrammingAgent p1 = new LogicProgrammingAgent(platform, new AgentId("agent1"));
-        LogicProgrammingAgent p2 = new LogicProgrammingAgent(platform, new AgentId("agent2"));
-        LogicProgrammingAgent p3 = new LogicProgrammingAgent(platform, new AgentId("agent3"));
+        List<Agent> agents = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            agents.add(new LogicProgrammingAgent(platform, new AgentId("agent" + i)));
+        }
 
 //        p1.addRule(Rule.createRuleHead(new Constant("agent1:a")).addToBody(new Constant("agent2:b")));
 //        p2.addRule(Rule.createRuleHead(new Constant("agent2:b")).addToBody(new Constant("agent3:c")));
@@ -47,6 +42,5 @@ public class MainTest {
 //            executor.awaitTermination(1, TimeUnit.SECONDS);
 //        } catch (InterruptedException e) {
 //        }
-
     }
 }

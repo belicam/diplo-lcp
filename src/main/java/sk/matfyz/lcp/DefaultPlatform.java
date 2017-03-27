@@ -15,12 +15,14 @@ public class DefaultPlatform implements Platform {
     DiscoveryService diss = new DiscoveryServiceImpl();
 
     public DefaultPlatform() {
-        Discovery udpChannel = new UdpDiscovery();
+        Discovery udpChannel = new UdpDiscovery(diss);
         
         diss.registerDiscovery(udpChannel);
 
         lac.register(diss);
         ds.registerDS(diss);
+        
+        udpChannel.start();
     }
 
     public DirectoryService getDirectoryService() {

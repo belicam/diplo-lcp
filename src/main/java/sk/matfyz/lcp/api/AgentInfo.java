@@ -13,7 +13,7 @@ public class AgentInfo implements Serializable {
     private final AgentId id;
     private final Set<String> flags = new HashSet<String>();
     private final Set<String> services = new HashSet<String>();
-    private final List<URL> addresses = new ArrayList<URL>();
+    private final List<TransportAddress> addresses = new ArrayList<TransportAddress>();
 
     public AgentInfo(final AgentId id) {
         if (id == null) {
@@ -35,7 +35,7 @@ public class AgentInfo implements Serializable {
         return services;
     }
 
-    public final List<URL> getTransportAddresses() {
+    public final List<TransportAddress> getTransportAddresses() {
         return addresses;
     }
 
@@ -66,14 +66,7 @@ public class AgentInfo implements Serializable {
 
         final AgentInfo other = (AgentInfo) obj;
 
-        if (!Objects.equals(this.id, other.id) 
-                || !Objects.equals(this.flags, other.flags) 
-                || !Objects.equals(this.services, other.services) 
-                || !Objects.equals(this.addresses, other.addresses)) {
-            return false;
-        }
-        
-        return true;
+        return Objects.equals(this.id, other.id);
 
     }
 
