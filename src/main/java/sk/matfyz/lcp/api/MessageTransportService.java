@@ -10,5 +10,5 @@ public interface MessageTransportService {
 	public void registerTransport(MessageTransport mt);
 	public void deregisterTransport(MessageTransport mt);
 
-	public List<URL> addressForAgent(AgentId agentId);
+	public List<TransportAddress> addressForAgent(AgentId agentId);
 }

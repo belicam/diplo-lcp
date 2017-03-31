@@ -86,8 +86,8 @@ public class MessageTransportServiceImpl implements MessageTransportService {
     }
 
     @Override
-    public List<URL> addressForAgent(AgentId agentId) {
-        List<URL> addresses = new ArrayList<URL>();
+    public List<TransportAddress> addressForAgent(AgentId agentId) {
+        List<TransportAddress> addresses = new ArrayList<TransportAddress>();
 
         for (MessageTransport mt : transports) {
             addresses.add(mt.agentToTransport(agentId));

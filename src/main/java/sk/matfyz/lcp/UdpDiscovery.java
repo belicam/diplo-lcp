@@ -20,12 +20,10 @@ import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,7 +46,7 @@ public class UdpDiscovery implements Discovery {
 
     final int MAX_DATA_SIZE = 65507; // 65535 - 20(ip header) - 8(udp header)
 
-    private Map<AgentInfo, Timestamp> localAgents = new ConcurrentHashMap<>();
+    private Set<AgentInfo> localAgents = new CopyOnWriteArraySet<>();
 
     private DatagramSocket socket;
     private byte[] buf = new byte[MAX_DATA_SIZE];
@@ -74,7 +72,7 @@ public class UdpDiscovery implements Discovery {
         sendingThread = new Thread(() -> {
             while (true) {
                 try {
-                    broadcast(localAgents.keySet());
+                    broadcast(localAgents);
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
@@ -183,7 +181,7 @@ public class UdpDiscovery implements Discovery {
         return (Collection<AgentInfo>) o;
     }
 
-    public Map<AgentInfo, Timestamp> getLocalAgents() {
+    public Set<AgentInfo> getLocalAgents() {
         return localAgents;
     }
 
@@ -200,7 +198,7 @@ public class UdpDiscovery implements Discovery {
 
     @Override
     public void registerLocalAgent(AgentInfo a) {
-        localAgents.put(a, new Timestamp(System.currentTimeMillis()));
+        localAgents.add(a);
     }
 
     @Override

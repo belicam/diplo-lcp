@@ -72,11 +72,9 @@ public class AgentInfo implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 83 * hash + Objects.hashCode(this.id);
-        hash = 83 * hash + Objects.hashCode(this.flags);
-        hash = 83 * hash + Objects.hashCode(this.services);
-        hash = 83 * hash + Objects.hashCode(this.addresses);
+        int hash = 3;
+        hash = 37 * hash + Objects.hashCode(this.id);
         return hash;
     }
+
 }

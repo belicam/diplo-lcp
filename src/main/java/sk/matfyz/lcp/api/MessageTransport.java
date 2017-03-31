@@ -9,6 +9,6 @@ public interface MessageTransport {
 	
 	public boolean accepts(String protocolName);
 
-	public URL agentToTransport(AgentId agentId);
-	public AgentId transportToAgent(URL transportAddress);
+	public TransportAddress agentToTransport(AgentId agentId);
+	public AgentId transportToAgent(TransportAddress transportAddress);
 }
