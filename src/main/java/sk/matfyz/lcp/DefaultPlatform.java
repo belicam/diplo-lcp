@@ -6,7 +6,6 @@ import sk.matfyz.lcp.api.Discovery;
 import sk.matfyz.lcp.api.DiscoveryService;
 import sk.matfyz.lcp.api.MessageTransportService;
 import sk.matfyz.lcp.api.LocalAgentCollection;
-import sk.matfyz.lcp.api.MessageTransport;
 
 public class DefaultPlatform implements Platform {
 
@@ -17,7 +16,7 @@ public class DefaultPlatform implements Platform {
 
     public DefaultPlatform() {
         Discovery udpChannel = new UdpDiscovery(diss);
-        MessageTransport tcpTransport = new TcpMessageTransport();
+        TcpMessageTransport tcpTransport = new TcpMessageTransport(mts);
         
         mts.registerTransport(tcpTransport);
         diss.registerDiscovery(udpChannel);
@@ -26,20 +25,25 @@ public class DefaultPlatform implements Platform {
         ds.registerDS(diss);
         
         udpChannel.start();
+        tcpTransport.start();
     }
 
+    @Override
     public DirectoryService getDirectoryService() {
         return ds;
     }
 
+    @Override
     public MessageTransportService getMessageTransportService() {
         return mts;
     }
 
+    @Override
     public LocalAgentCollection getLocalAgentCollection() {
         return lac;
     }
 
+    @Override
     public DiscoveryService getDiscoveryService() {
         return diss;
     }

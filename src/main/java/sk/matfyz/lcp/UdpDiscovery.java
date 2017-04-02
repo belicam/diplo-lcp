@@ -17,11 +17,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
@@ -119,7 +117,7 @@ public class UdpDiscovery implements Discovery {
             InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
             DatagramPacket packet = new DatagramPacket(msg, msg.length, broadcastAddress, SOCKET_PORT);
 
-            System.out.println(InetAddress.getLocalHost().getHostAddress() + " sent: " + agentsList.size());
+            System.out.println("UdpDiscovery " + InetAddress.getLocalHost().getHostAddress() + " sent: " + agentsList.size());
 
             socket.send(packet);
 
