@@ -37,7 +37,7 @@ import sk.matfyz.lcp.api.LcpUtils;
 public class TcpMessageTransport implements MessageTransport, EventListener<EnvelopeReceivedEvent> {
 
     final List<String> ACCEPTED_PROTOCOLS = Arrays.asList("tcp");
-    final int SERVER_PORT = 8888;
+    private int SERVER_PORT;
 
     private EventSource<EnvelopeReceivedEvent> envelopeReceivedEventSource = new EventSourceImpl<>();
 
@@ -52,7 +52,21 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
         this.mts = mts;
 
         try {
-            serverSocket = new ServerSocket(SERVER_PORT);
+            serverSocket = new ServerSocket(0);
+            SERVER_PORT = serverSocket.getLocalPort();
+        } catch (IOException ex) {
+            Logger.getLogger(TcpMessageTransport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        setUp();
+    }
+
+    public TcpMessageTransport(MessageTransportService mts, int port) {
+        this.mts = mts;
+
+        try {
+            serverSocket = new ServerSocket(port);
+            SERVER_PORT = port;
         } catch (IOException ex) {
             Logger.getLogger(TcpMessageTransport.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -102,16 +116,16 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
     public void postMessage(Envelope env) {
         byte[] envelopeBytes = envelopeToBytes(env);
         byte[] envelopeLength = LcpUtils.intToBytes(envelopeBytes.length);
-        
+
         for (TransportAddress ta : env.getRecipients()) {
-            
+
             try (Socket socket = new Socket(ta.getHost(), ta.getPort())) {
                 socket.getOutputStream().write(envelopeLength, 0, envelopeLength.length);
                 socket.getOutputStream().write(envelopeBytes, 0, envelopeBytes.length);
             } catch (IOException ex) {
                 Logger.getLogger(TcpMessageTransport.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
         }
     }
 

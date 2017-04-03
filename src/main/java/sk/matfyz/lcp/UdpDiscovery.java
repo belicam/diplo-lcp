@@ -40,7 +40,7 @@ public class UdpDiscovery implements Discovery {
     private DiscoveryService ds;
 
     final String PROTOCOL = "tcp";
-    final int SOCKET_PORT = 8888;
+    int SOCKET_PORT;
 
     final int MAX_DATA_SIZE = 65507; // 65535 - 20(ip header) - 8(udp header)
 
@@ -57,8 +57,23 @@ public class UdpDiscovery implements Discovery {
         this.ds = ds;
 
         try {
-            socket = new DatagramSocket(SOCKET_PORT);
+            socket = new DatagramSocket(0);
             socket.setBroadcast(true);
+            SOCKET_PORT = socket.getLocalPort();
+        } catch (SocketException ex) {
+            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        setupThreads();
+    }
+
+    public UdpDiscovery(DiscoveryService ds, int port) {
+        this.ds = ds;
+
+        try {
+            socket = new DatagramSocket(port);
+            socket.setBroadcast(true);
+            SOCKET_PORT = port;
         } catch (SocketException ex) {
             Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -108,7 +123,7 @@ public class UdpDiscovery implements Discovery {
         try {
             List<AgentInfo> agentsList = new ArrayList<>(agentsToBroadcast);
             byte[] msg = serializeAgents(agentsList);
-            
+
             while (msg.length > MAX_DATA_SIZE) {
                 agentsList.remove(agentsList.size() - 1);
                 msg = serializeAgents(agentsList);
