@@ -40,8 +40,8 @@ public class TcpMessageTransportConnection extends Thread {
 
     @Override
     public void run() {
-//        while (acceptMessage());
-        acceptMessage();
+        while (acceptMessage());
+//        acceptMessage();
 
         try {
             socket.close();

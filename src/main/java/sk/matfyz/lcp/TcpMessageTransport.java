@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.matfyz.lcp.api.AgentId;
@@ -38,7 +39,7 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
     private ServerSocket serverSocket;
 
     private Thread listeningThread;
-    private List<TcpMessageTransportConnection> connections = new ArrayList<>();
+    private List<TcpMessageTransportConnection> connections = new CopyOnWriteArrayList<>();
 
     private MessageTransportService mts;
 
@@ -123,7 +124,7 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
             } catch (IOException ex) {
                 Logger.getLogger(TcpMessageTransport.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+            
         }
     }
 
