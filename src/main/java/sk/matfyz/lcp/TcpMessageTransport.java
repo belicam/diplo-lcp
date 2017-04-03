@@ -40,7 +40,6 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
     private EventSource<EnvelopeReceivedEvent> envelopeReceivedEventSource = new EventSourceImpl<>();
 
     private ServerSocket serverSocket;
-    private Socket sendingSocket;
 
     private Thread listeningThread;
     private List<TcpMessageTransportConnection> connections = new ArrayList<>();
@@ -112,7 +111,6 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
             }
             
         }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

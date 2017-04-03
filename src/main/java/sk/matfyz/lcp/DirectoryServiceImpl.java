@@ -70,7 +70,11 @@ public class DirectoryServiceImpl implements DirectoryService {
 
     @Override
     public AgentInfo lookup(AgentId agentId) {
-        return agents.get(agentId).getValue();
+        Timestamped<AgentInfo> agent = agents.get(agentId);
+        if (agent == null) {
+            return null;
+        }
+        return agent.getValue();
     }
 
     @Override

@@ -60,7 +60,8 @@ public class TcpMessageTransportConnection extends Thread {
     private boolean acceptMessage() {
         try {
             int messageSize = input.read() + (input.read() << 8);
-            byte messageBytes[] = new byte[messageSize];
+            // todo precita zaporne cislo
+            byte[] messageBytes = new byte[messageSize];
             int i = 0; // how many bytes did we read so far
             do {
                 int j = input.read(messageBytes, i, messageBytes.length - i);
