@@ -7,6 +7,7 @@ import java.util.List;
 
 import sk.matfyz.lcp.api.Agent;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.AgentInfo;
 import sk.matfyz.lcp.api.DirectoryService;
 import sk.matfyz.lcp.api.Envelope;
 import sk.matfyz.lcp.api.LocalAgentCollection;
@@ -54,7 +55,11 @@ public class MessageTransportServiceImpl implements MessageTransportService {
     private void sendRemote(Message message, AgentId receiver) {
         DirectoryService ds = platform.getDirectoryService();
 
-        for (TransportAddress address : ds.lookup(receiver).getTransportAddresses()) {
+        AgentInfo receiverInfo = ds.lookup(receiver);
+
+        if (receiverInfo == null) return;
+        
+        for (TransportAddress address : receiverInfo.getTransportAddresses()) {
             String protocol = address.getProtocol();
 
             for (MessageTransport mt : transports) {

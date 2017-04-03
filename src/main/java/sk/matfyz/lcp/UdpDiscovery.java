@@ -39,7 +39,7 @@ public class UdpDiscovery implements Discovery {
 
     private DiscoveryService ds;
 
-    final String PROTOCOL = "udp";
+    final String PROTOCOL = "tcp";
     final int SOCKET_PORT = 8888;
 
     final int MAX_DATA_SIZE = 65507; // 65535 - 20(ip header) - 8(udp header)

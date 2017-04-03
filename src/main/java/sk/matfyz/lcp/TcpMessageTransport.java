@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.matfyz.lcp.api.AgentId;
@@ -27,6 +28,7 @@ import sk.matfyz.lcp.api.Message;
 import sk.matfyz.lcp.api.MessageTransport;
 import sk.matfyz.lcp.api.MessageTransportService;
 import sk.matfyz.lcp.api.TransportAddress;
+import sk.matfyz.lcp.api.LcpUtils;
 
 /**
  *
@@ -34,7 +36,7 @@ import sk.matfyz.lcp.api.TransportAddress;
  */
 public class TcpMessageTransport implements MessageTransport, EventListener<EnvelopeReceivedEvent> {
 
-    final List<String> ACCEPTED_PROTOCOLS = Arrays.asList("tcp", "udp");
+    final List<String> ACCEPTED_PROTOCOLS = Arrays.asList("tcp");
     final int SERVER_PORT = 8888;
 
     private EventSource<EnvelopeReceivedEvent> envelopeReceivedEventSource = new EventSourceImpl<>();
@@ -42,7 +44,7 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
     private ServerSocket serverSocket;
 
     private Thread listeningThread;
-    private List<TcpMessageTransportConnection> connections = new ArrayList<>();
+    private List<TcpMessageTransportConnection> connections = new CopyOnWriteArrayList<>();
 
     private MessageTransportService mts;
 
@@ -99,12 +101,12 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
     @Override
     public void postMessage(Envelope env) {
         byte[] envelopeBytes = envelopeToBytes(env);
+        byte[] envelopeLength = LcpUtils.intToBytes(envelopeBytes.length);
         
         for (TransportAddress ta : env.getRecipients()) {
             
             try (Socket socket = new Socket(ta.getHost(), ta.getPort())) {
-                socket.getOutputStream().write(envelopeBytes.length & 255);
-                socket.getOutputStream().write(envelopeBytes.length >> 8);
+                socket.getOutputStream().write(envelopeLength, 0, envelopeLength.length);
                 socket.getOutputStream().write(envelopeBytes, 0, envelopeBytes.length);
             } catch (IOException ex) {
                 Logger.getLogger(TcpMessageTransport.class.getName()).log(Level.SEVERE, null, ex);

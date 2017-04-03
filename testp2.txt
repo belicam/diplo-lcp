@@ -1,0 +1,3 @@
+#agent2
+agent2:a :- agent2:b
+agent2:b :-

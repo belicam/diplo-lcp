@@ -15,10 +15,12 @@ import java.net.Socket;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.rmi.CORBA.Util;
 import sk.matfyz.lcp.api.AgentInfo;
 import sk.matfyz.lcp.api.Envelope;
 import sk.matfyz.lcp.api.EnvelopeReceivedEvent;
 import sk.matfyz.lcp.api.MessageReceivedEvent;
+import sk.matfyz.lcp.api.LcpUtils;
 
 /**
  *
@@ -59,10 +61,19 @@ public class TcpMessageTransportConnection extends Thread {
 
     private boolean acceptMessage() {
         try {
-            int messageSize = input.read() + (input.read() << 8);
-            // todo precita zaporne cislo
-            byte[] messageBytes = new byte[messageSize];
+            byte[] messageSize = new byte[4];
             int i = 0; // how many bytes did we read so far
+            do {
+                int j = input.read(messageSize, i, messageSize.length - i);
+                if (j > 0) {
+                    i += j;
+                } else {
+                    break;
+                }
+            } while (i < messageSize.length);
+
+            byte[] messageBytes = new byte[LcpUtils.bytesToInt(messageSize)];
+            i = 0; // how many bytes did we read so far
             do {
                 int j = input.read(messageBytes, i, messageBytes.length - i);
                 if (j > 0) {
