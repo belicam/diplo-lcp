@@ -109,7 +109,7 @@ public class DirectoryServiceImpl implements DirectoryService {
         externalAgentsChecker = new Thread(() -> {
             while (true) {
                 try {
-                    System.out.println("DirectoryServiceImpl externalAgents: " + agents.size());
+//                    System.out.println("DirectoryServiceImpl externalAgents: " + agents.size());
                     agents.entrySet().removeIf((agentEntry) -> !agentEntry.getValue().isValid());
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {

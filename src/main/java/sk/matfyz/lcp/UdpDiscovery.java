@@ -29,6 +29,7 @@ import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.AgentInfo;
 import sk.matfyz.lcp.api.Discovery;
 import sk.matfyz.lcp.api.DiscoveryService;
+import sk.matfyz.lcp.api.LcpUtils;
 import sk.matfyz.lcp.api.TransportAddress;
 
 /**
@@ -122,17 +123,17 @@ public class UdpDiscovery implements Discovery {
     public void broadcast(Collection<AgentInfo> agentsToBroadcast) {
         try {
             List<AgentInfo> agentsList = new ArrayList<>(agentsToBroadcast);
-            byte[] msg = serializeAgents(agentsList);
+            byte[] msg = LcpUtils.serialize(agentsList);
 
             while (msg.length > MAX_DATA_SIZE) {
                 agentsList.remove(agentsList.size() - 1);
-                msg = serializeAgents(agentsList);
+                msg = LcpUtils.serialize(agentsList);
             }
 
             InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
             DatagramPacket packet = new DatagramPacket(msg, msg.length, broadcastAddress, SOCKET_PORT);
 
-            System.out.println("UdpDiscovery " + InetAddress.getLocalHost().getHostAddress() + " sent: " + agentsList.size());
+//            System.out.println("UdpDiscovery " + InetAddress.getLocalHost().getHostAddress() + " sent: " + agentsList.size());
 
             socket.send(packet);
 
@@ -151,49 +152,6 @@ public class UdpDiscovery implements Discovery {
         }
     }
 
-    private byte[] serializeAgents(Collection<AgentInfo> agents) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
-
-        byte[] result = null;
-
-        try {
-            out = new ObjectOutputStream(bos);
-            out.writeObject(agents);
-            out.flush();
-            result = bos.toByteArray();
-        } catch (IOException ex) {
-            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ex) {
-
-            }
-        }
-        return result;
-    }
-
-    private Collection<AgentInfo> deserializeAgents(byte[] data) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(data);
-        ObjectInput in = null;
-        Object o = null;
-        try {
-            in = new ObjectInputStream(bis);
-            o = in.readObject();
-        } catch (ClassNotFoundException | IOException ex) {
-            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-            }
-        }
-        return (Collection<AgentInfo>) o;
-    }
-
     public Set<AgentInfo> getLocalAgents() {
         return localAgents;
     }
@@ -202,7 +160,7 @@ public class UdpDiscovery implements Discovery {
         byte[] data = new byte[dp.getLength()];
         System.arraycopy(dp.getData(), 0, data, 0, dp.getLength());
 
-        Collection<AgentInfo> recievedAgents = deserializeAgents(data);
+        Collection<AgentInfo> recievedAgents = (Collection<AgentInfo>) LcpUtils.deserialize(data);
 
         recievedAgents.forEach((ainfo) -> {
             ds.registerExternalAgent(ainfo);

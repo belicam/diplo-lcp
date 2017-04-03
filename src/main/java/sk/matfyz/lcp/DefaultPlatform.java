@@ -15,8 +15,8 @@ public class DefaultPlatform implements Platform {
     DiscoveryService diss = new DiscoveryServiceImpl();
 
     public DefaultPlatform() {
-        Discovery udpChannel = new UdpDiscovery(diss);
-        TcpMessageTransport tcpTransport = new TcpMessageTransport(mts);
+        Discovery udpChannel = new UdpDiscovery(diss, 8888);
+        TcpMessageTransport tcpTransport = new TcpMessageTransport(mts, 8888);
         
         mts.registerTransport(tcpTransport);
         diss.registerDiscovery(udpChannel);
@@ -24,8 +24,8 @@ public class DefaultPlatform implements Platform {
         lac.register(diss);
         ds.registerDS(diss);
         
-        udpChannel.start();
         tcpTransport.start();
+        udpChannel.start();
     }
 
     @Override

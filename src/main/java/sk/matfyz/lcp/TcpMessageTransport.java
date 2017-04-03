@@ -5,23 +5,17 @@
  */
 package sk.matfyz.lcp;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.Envelope;
 import sk.matfyz.lcp.api.EnvelopeReceivedEvent;
-import sk.matfyz.lcp.api.Event;
 import sk.matfyz.lcp.api.EventListener;
 import sk.matfyz.lcp.api.EventSource;
 import sk.matfyz.lcp.api.Message;
@@ -44,13 +38,14 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
     private ServerSocket serverSocket;
 
     private Thread listeningThread;
-    private List<TcpMessageTransportConnection> connections = new CopyOnWriteArrayList<>();
+    private List<TcpMessageTransportConnection> connections = new ArrayList<>();
 
     private MessageTransportService mts;
 
     public TcpMessageTransport(MessageTransportService mts) {
         this.mts = mts;
-
+        getEnvelopeReceivedSource().addListener(this);
+        
         try {
             serverSocket = new ServerSocket(0);
             SERVER_PORT = serverSocket.getLocalPort();
@@ -63,6 +58,7 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
 
     public TcpMessageTransport(MessageTransportService mts, int port) {
         this.mts = mts;
+        getEnvelopeReceivedSource().addListener(this);
 
         try {
             serverSocket = new ServerSocket(port);
@@ -114,12 +110,14 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
 
     @Override
     public void postMessage(Envelope env) {
-        byte[] envelopeBytes = envelopeToBytes(env);
+        byte[] envelopeBytes = LcpUtils.serialize(env);
         byte[] envelopeLength = LcpUtils.intToBytes(envelopeBytes.length);
 
+//        System.out.println("sk.matfyz.lcp.TcpMessageTransport.postMessage()");
         for (TransportAddress ta : env.getRecipients()) {
 
-            try (Socket socket = new Socket(ta.getHost(), ta.getPort())) {
+            try {
+                Socket socket = new Socket(ta.getHost(), ta.getPort());
                 socket.getOutputStream().write(envelopeLength, 0, envelopeLength.length);
                 socket.getOutputStream().write(envelopeBytes, 0, envelopeBytes.length);
             } catch (IOException ex) {
@@ -151,32 +149,8 @@ public class TcpMessageTransport implements MessageTransport, EventListener<Enve
 
     @Override
     public void onEvent(EnvelopeReceivedEvent e) {
+//        System.out.println("sk.matfyz.lcp.TcpMessageTransport.onEvent() " + e.getEnvelope().getMessage());
         Message msg = e.getEnvelope().getMessage();
         mts.sendMessage(msg);
     }
-
-    private byte[] envelopeToBytes(Envelope env) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
-
-        byte[] result = null;
-
-        try {
-            out = new ObjectOutputStream(bos);
-            out.writeObject(env);
-            out.flush();
-            result = bos.toByteArray();
-        } catch (IOException ex) {
-            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ex) {
-
-            }
-        }
-        return result;
-
-    }
-
 }

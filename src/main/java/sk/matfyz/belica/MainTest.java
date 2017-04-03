@@ -59,7 +59,7 @@ public class MainTest {
             agents.forEach(a -> executor.execute(a));
             executor.shutdown();
 
-            sendInit(agents.get(0));
+//            sendInit(agents.get(0));
 
         } catch (IOException ex) {
             Logger.getLogger(MainTest.class.getName()).log(Level.SEVERE, null, ex);

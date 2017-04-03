@@ -5,21 +5,13 @@
  */
 package sk.matfyz.lcp;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.rmi.CORBA.Util;
-import sk.matfyz.lcp.api.AgentInfo;
 import sk.matfyz.lcp.api.Envelope;
-import sk.matfyz.lcp.api.EnvelopeReceivedEvent;
-import sk.matfyz.lcp.api.MessageReceivedEvent;
 import sk.matfyz.lcp.api.LcpUtils;
 
 /**
@@ -48,7 +40,8 @@ public class TcpMessageTransportConnection extends Thread {
 
     @Override
     public void run() {
-        while (acceptMessage());
+//        while (acceptMessage());
+        acceptMessage();
 
         try {
             socket.close();
@@ -60,6 +53,7 @@ public class TcpMessageTransportConnection extends Thread {
     }
 
     private boolean acceptMessage() {
+//        System.out.println("sk.matfyz.lcp.TcpMessageTransportConnection.acceptMessage()");
         try {
             byte[] messageSize = new byte[4];
             int i = 0; // how many bytes did we read so far
@@ -82,34 +76,12 @@ public class TcpMessageTransportConnection extends Thread {
                     break;
                 }
             } while (i < messageBytes.length);
-            
-            Envelope env = bytesToEnvelope(messageBytes);
+
+            Envelope env = (EnvelopeImpl) LcpUtils.deserialize(messageBytes);
             messageTransport.getEnvelopeReceivedSource().postEvent(new EnvelopeReceivedEventImpl(env));
         } catch (IOException ex) {
             return false;
         }
         return true;
-    }
-    
-    private Envelope bytesToEnvelope(byte[] bytes) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        ObjectInput in = null;
-        Object o = null;
-        
-        try {
-            in = new ObjectInputStream(bis);
-            o = in.readObject();
-        } catch (ClassNotFoundException | IOException ex) {
-            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-            }
-        }
-        return (EnvelopeImpl) o;
-
     }
 }

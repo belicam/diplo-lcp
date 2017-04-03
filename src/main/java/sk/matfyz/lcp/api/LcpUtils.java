@@ -5,14 +5,18 @@
  */
 package sk.matfyz.lcp.api;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sk.matfyz.lcp.EnvelopeImpl;
 import sk.matfyz.lcp.UdpDiscovery;
 
 /**
@@ -28,5 +32,50 @@ public class LcpUtils {
     public static int bytesToInt(byte[] bytes) {
         ByteBuffer bb = ByteBuffer.wrap(bytes);
         return bb.getInt();
+    }
+
+    public static Object deserialize(byte[] bytes) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        ObjectInput in = null;
+        Object o = null;
+
+        try {
+            in = new ObjectInputStream(bis);
+            o = in.readObject();
+        } catch (ClassNotFoundException | IOException ex) {
+            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+            }
+        }
+        return o;
+    }
+
+    public static byte[] serialize(Object obj) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = null;
+
+        byte[] result = null;
+
+        try {
+            out = new ObjectOutputStream(bos);
+            out.writeObject(obj);
+            out.flush();
+            result = bos.toByteArray();
+        } catch (IOException ex) {
+            Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException ex) {
+
+            }
+        }
+        return result;
+
     }
 }
