@@ -64,7 +64,7 @@ public class PhaseTwo implements Phase {
             
             // test  ci skoncili vsetci
             if (!participatedFiringEnded.containsValue(Boolean.FALSE)) {
-                System.out.println("Stop"); // TODO vyriesit stop message
+                System.out.println("Stop: " + program.getSmallestModel()); // TODO vyriesit stop message
 //                sendMessage(new StopMessage());
             }
         }

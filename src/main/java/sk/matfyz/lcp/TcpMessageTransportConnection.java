@@ -40,10 +40,12 @@ public class TcpMessageTransportConnection extends Thread {
 
     @Override
     public void run() {
-        while (acceptMessage());
-//        acceptMessage();
+//        while (acceptMessage());
+        acceptMessage();
 
         try {
+            output = null;
+            input = null;
             socket.close();
             messageTransport.disconnect(this);
         } catch (IOException ex) {
@@ -53,7 +55,7 @@ public class TcpMessageTransportConnection extends Thread {
     }
 
     private boolean acceptMessage() {
-//        System.out.println("sk.matfyz.lcp.TcpMessageTransportConnection.acceptMessage()");
+        System.out.println("sk.matfyz.lcp.TcpMessageTransportConnection.acceptMessage()");
         try {
             byte[] messageSize = new byte[4];
             int i = 0; // how many bytes did we read so far
@@ -77,8 +79,10 @@ public class TcpMessageTransportConnection extends Thread {
                 }
             } while (i < messageBytes.length);
 
-            Envelope env = (EnvelopeImpl) LcpUtils.deserialize(messageBytes);
-            messageTransport.getEnvelopeReceivedSource().postEvent(new EnvelopeReceivedEventImpl(env));
+            if (messageBytes.length > 0) {
+                Envelope env = (EnvelopeImpl) LcpUtils.deserialize(messageBytes);
+                messageTransport.getEnvelopeReceivedSource().postEvent(new EnvelopeReceivedEventImpl(env));
+            }
         } catch (IOException ex) {
             return false;
         }

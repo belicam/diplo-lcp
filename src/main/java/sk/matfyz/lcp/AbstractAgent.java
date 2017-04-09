@@ -40,7 +40,8 @@ public class AbstractAgent implements Agent {
     }
 
     public void sendMessage(Message msg) {
-        platform.getMessageTransportService().sendMessage(msg);
+        platform.getMessageTransportService().sendMessage(msg, false);
+        System.out.println("sent: " + msg);
     }
 
     public EventSource<MessageReceivedEvent> getMessageReceivedSource() {

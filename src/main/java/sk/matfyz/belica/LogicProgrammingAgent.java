@@ -68,6 +68,7 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
     @Override
     public void onEvent(MessageReceivedEvent e) {
         getMessages().add(e.getMessage());
+        System.out.println("received: " + e.getMessage());
     }
 
     private void processMessage(Message message) {

@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import sk.matfyz.belica.messages.ActivationMessage;
 
 import sk.matfyz.lcp.api.Agent;
 import sk.matfyz.lcp.api.AgentId;
@@ -35,14 +36,14 @@ public class MessageTransportServiceImpl implements MessageTransportService {
         this.platform = platform;
     }
 
-    private void sendMessageTo(Message msg, AgentId receiver) {
+    private void sendMessageTo(Message msg, AgentId receiver, boolean sendLocalOnly) {
         LocalAgentCollection local = platform.getLocalAgentCollection();
 
         Agent agent = local.contains(receiver);
 
         if (agent != null) {
             sendLocal(msg, agent);
-        } else {
+        } else if (!sendLocalOnly) {
             sendRemote(msg, receiver);
         }
 
@@ -73,10 +74,9 @@ public class MessageTransportServiceImpl implements MessageTransportService {
     }
 
     @Override
-    public void sendMessage(Message msg) {
-        System.out.println(msg);
+    public void sendMessage(Message msg, boolean sendLocalOnly) {
         for (AgentId receiverId : msg.getRecepients()) {
-            sendMessageTo(msg, receiverId);
+            sendMessageTo(msg, receiverId, sendLocalOnly);
         }
     }
 

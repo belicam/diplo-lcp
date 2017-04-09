@@ -5,11 +5,9 @@
  */
 package sk.matfyz.belica;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import sk.matfyz.belica.messages.*;
@@ -72,8 +70,10 @@ public class PhaseOne implements Phase {
         } else {
             checkRules(message, program.getInitialProgramLabel());
 
-            if (activeMessages.noMessages()) {
+            if (activeMessages.noMessages() && program.isParticipationConfirmed()) {
                 sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
+            } else {
+                resolvedParent.put(from, message);
             }
 
             sendMessage(new NotifyParticipationRequestMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));

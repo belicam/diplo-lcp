@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface MessageTransportService {
 
-	public void sendMessage(Message msg);
+	public void sendMessage(Message msg, boolean sendLocalOnly);
 
 	public void registerTransport(MessageTransport mt);
 	public void deregisterTransport(MessageTransport mt);

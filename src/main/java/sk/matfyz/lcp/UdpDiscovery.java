@@ -5,13 +5,7 @@
  */
 package sk.matfyz.lcp;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -98,7 +92,10 @@ public class UdpDiscovery implements Discovery {
             while (true) {
                 try {
                     socket.receive(dp);
-                    receiveData(dp);
+//                    if excludes registering own broadcasted packets
+//                    if (!dp.getAddress().getHostAddress().equals(InetAddress.getLocalHost().getHostAddress())) {
+                        receiveData(dp);
+//                    }
                 } catch (IOException ex) {
                     Logger.getLogger(UdpDiscovery.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -134,7 +131,6 @@ public class UdpDiscovery implements Discovery {
             DatagramPacket packet = new DatagramPacket(msg, msg.length, broadcastAddress, SOCKET_PORT);
 
 //            System.out.println("UdpDiscovery " + InetAddress.getLocalHost().getHostAddress() + " sent: " + agentsList.size());
-
             socket.send(packet);
 
             List<AgentInfo> remainingAgents = agentsToBroadcast

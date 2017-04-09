@@ -44,7 +44,7 @@ public class MainTest {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            throw new IllegalArgumentException("args[] is empty! Missing required argument for path of file to parse.");
+            throw new IllegalArgumentException("args[] is empty! Missing required argument for path to file with distributed program.");
         }
 
         String pth = args[0];
@@ -59,7 +59,7 @@ public class MainTest {
             agents.forEach(a -> executor.execute(a));
             executor.shutdown();
 
-//            sendInit(agents.get(0));
+            sendInit(agents.get(0));
 
         } catch (IOException ex) {
             Logger.getLogger(MainTest.class.getName()).log(Level.SEVERE, null, ex);
