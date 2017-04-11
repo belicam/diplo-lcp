@@ -6,6 +6,7 @@
 package sk.matfyz.belica.messages;
 
 import java.util.Set;
+import sk.matfyz.belica.ContextId;
 import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.MessageId;
@@ -14,10 +15,10 @@ import sk.matfyz.lcp.api.MessageId;
  *
  * @author martin
  */
-public class DependencyGraphBuiltMessage extends AbstractMessage {
+public class DependencyGraphBuiltMessage extends MessageWithContext {
 
-    public DependencyGraphBuiltMessage(AgentId sender, MessageId id, Set<AgentId> rcpts) {
-        super(sender, id, rcpts, null);
+    public DependencyGraphBuiltMessage(AgentId sender, MessageId id, ContextId context,  Set<AgentId> rcpts) {
+        super(sender, id, context, rcpts, null);
     }
 
     @Override

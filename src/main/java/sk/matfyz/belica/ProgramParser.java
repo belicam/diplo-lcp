@@ -46,7 +46,7 @@ public class ProgramParser {
                     }
 
                     if (!programs.isEmpty()) {
-                        programs.get(programs.size() - 1).addRule(r);
+                        programs.get(programs.size() - 1).getRules().add(r);
                     }
                 }
             }

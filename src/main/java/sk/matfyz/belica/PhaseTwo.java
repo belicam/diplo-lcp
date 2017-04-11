@@ -22,20 +22,20 @@ import sk.matfyz.lcp.api.Message;
  */
 public class PhaseTwo implements Phase {
 
-    private final LogicProgrammingAgent program;
+    private final Context context;
     private final TreeSolver solver;
     private final ActiveMessages activeMessages;
 
     private final Map<AgentId, Boolean> participatedFiringEnded = new HashMap<>();
 
-    public PhaseTwo(LogicProgrammingAgent program) {
-        this.program = program;
-        this.solver = new TreeSolver((ArrayList<Rule>) program.getRules());
+    public PhaseTwo(Context context) {
+        this.context = context;
+        this.solver = new TreeSolver((ArrayList<Rule>) context.getRules());
         this.activeMessages = new ActiveMessages();
 
-        if (program.isInitialProgram()) {
+        if (context.isInitialProgram()) {
             participatedFiringEnded.clear();
-            program.getParticipatedPrograms().forEach((programLabel) -> participatedFiringEnded.put(programLabel, Boolean.FALSE));
+            context.getParticipatedPrograms().forEach((programLabel) -> participatedFiringEnded.put(programLabel, Boolean.FALSE));
         }
 
     }
@@ -53,7 +53,7 @@ public class PhaseTwo implements Phase {
 
     @Override
     public void sendMessage(Message message) {
-        program.sendMessage(message);
+        context.sendMessage(message);
     }
 
     private void processFiringEnded(Object message) {
@@ -61,10 +61,10 @@ public class PhaseTwo implements Phase {
 
         if (!participatedFiringEnded.get(sender)) {
             participatedFiringEnded.put(sender, Boolean.TRUE);
-            
+
             // test  ci skoncili vsetci
             if (!participatedFiringEnded.containsValue(Boolean.FALSE)) {
-                System.out.println("Stop: " + program.getSmallestModel()); // TODO vyriesit stop message
+                System.out.println("Stop: " + context.getSmallestModel()); // TODO vyriesit stop message
 //                sendMessage(new StopMessage());
             }
         }
@@ -74,13 +74,19 @@ public class PhaseTwo implements Phase {
         FireRequestMessage requestMessage = (FireRequestMessage) message;
         Set<Literal> obtainedLiterals = requestMessage.getLits();
         AgentId sender = requestMessage.getSender();
-        
-        program.getSmallestModel().addAll(obtainedLiterals);
+
+        context.getSmallestModel().addAll(obtainedLiterals);
         fire(requestMessage);
 
         // ziadne nove message z tejto `requestMessage` nevznikli, tak rovno odpovedam 
         if (activeMessages.messageHasNoChildren(requestMessage)) {
-            sendMessage(new FireResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(sender), requestMessage.getId()));
+            sendMessage(new FireResponseMessage(
+                    context.getOwner().getName(),
+                    context.getOwner().generateMessageId(),
+                    context.getContextId(),
+                    Collections.singleton(sender),
+                    requestMessage.getId()
+            ));
         }
     }
 
@@ -89,28 +95,39 @@ public class PhaseTwo implements Phase {
         AgentId senderLabel = responseMessage.getSender();
 
 //        response som si poslal sam sebe
-        if (senderLabel.equals(program.getName())) {            
-            sendMessage(new FiringEndedMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));
+        if (senderLabel.equals(context.getOwner().getName())) {
+            sendMessage(new FiringEndedMessage(
+                    context.getOwner().getName(),
+                    context.getOwner().generateMessageId(),
+                    context.getContextId(),
+                    Collections.singleton(context.getInitialProgramLabel())
+            ));
         } else {
 //        vymazem v mape request message, na ktoru prisla odpoved | poslem response ak po vymazani je prazdne pole
             Map<AgentId, Object> resolvedMessages = activeMessages.resolveChildMessage(senderLabel, responseMessage.getReferenceId());
-            
+
             resolvedMessages.entrySet().forEach(resolved -> {
-                sendMessage(new FireResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(resolved.getKey()), ((Message) resolved.getValue()).getId()));
+                sendMessage(new FireResponseMessage(
+                        context.getOwner().getName(),
+                        context.getOwner().generateMessageId(),
+                        context.getContextId(),
+                        Collections.singleton(resolved.getKey()),
+                        ((Message) resolved.getValue()).getId()
+                ));
             });
         }
     }
 
     private void fire(Object parentRequestMessage) {
-        Set<Literal> newDerived = solver.findSmallestModel(program.getSmallestModel());
-        newDerived.removeAll(program.getSmallestModel());
+        Set<Literal> newDerived = solver.findSmallestModel(context.getSmallestModel());
+        newDerived.removeAll(context.getSmallestModel());
 
 //        System.out.println("core.Program.fire()#" + label + " newDerived: " + newDerived);
         if (!newDerived.isEmpty()) {
             Map<AgentId, Set<Literal>> literalsToSend = new HashMap<>();
             newDerived.forEach(lit -> {
-                if (program.getAskedLiterals().containsKey(lit)) {
-                    program.getAskedLiterals().get(lit).forEach(prog -> {
+                if (context.getAskedLiterals().containsKey(lit)) {
+                    context.getAskedLiterals().get(lit).forEach(prog -> {
                         if (!literalsToSend.containsKey(prog)) {
                             literalsToSend.put(prog, new HashSet<>());
                         }
@@ -121,16 +138,17 @@ public class PhaseTwo implements Phase {
 
             literalsToSend.entrySet().stream().forEach((entry) -> {
                 Message childMessage = new FireRequestMessage(
-                        program.getName(), 
-                        program.generateMessageId(), 
-                        Collections.singleton(entry.getKey()), 
+                        context.getOwner().getName(),
+                        context.getOwner().generateMessageId(),
+                        context.getContextId(),
+                        Collections.singleton(entry.getKey()),
                         entry.getValue()
                 );
-                
+
                 activeMessages.addChildMessage(parentRequestMessage, entry.getKey(), childMessage);
                 sendMessage(childMessage);
             });
-            program.getSmallestModel().addAll(newDerived);
+            context.getSmallestModel().addAll(newDerived);
         }
     }
 }

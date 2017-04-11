@@ -6,7 +6,7 @@
 package sk.matfyz.belica.messages;
 
 import java.util.Set;
-import sk.matfyz.lcp.AbstractMessage;
+import sk.matfyz.belica.ContextId;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.MessageId;
 
@@ -14,10 +14,10 @@ import sk.matfyz.lcp.api.MessageId;
  *
  * @author martin
  */
-public class NotifyParticipationRequestMessage extends AbstractMessage {
+public class NotifyParticipationRequestMessage extends MessageWithContext {
     
-    public NotifyParticipationRequestMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts) {
-        super(senderLabel, id, rcpts, null);
+    public NotifyParticipationRequestMessage(AgentId senderLabel, MessageId id, ContextId context, Set<AgentId> rcpts) {
+        super(senderLabel, id, context, rcpts, null);
     }
     
     @Override

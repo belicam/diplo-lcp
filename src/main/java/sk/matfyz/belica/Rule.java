@@ -5,18 +5,20 @@
  */
 package sk.matfyz.belica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import sk.matfyz.belica.solver.Cache;
 import sk.matfyz.belica.solver.NodeLiteral;
 import sk.matfyz.belica.solver.NodeRule;
+import sk.matfyz.lcp.api.LcpUtils;
 
 /**
  *
  * @author martin
  */
-public class Rule {
+public class Rule implements Serializable {
 
     private Literal head;
     private ArrayList<Literal> body;
@@ -54,7 +56,7 @@ public class Rule {
         this.head = head;
     }
 
-    public Rule addToBody(Literal ...lit) {
+    public Rule addToBody(Literal... lit) {
         this.body.addAll(Arrays.asList(lit));
         return this;
     }
@@ -101,7 +103,7 @@ public class Rule {
         }
         return true;
     }
-    
+
     public static Rule createRuleHead(Literal lit) {
         Rule r = new Rule();
         r.setHead(lit);

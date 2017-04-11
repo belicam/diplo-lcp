@@ -8,15 +8,14 @@ package sk.matfyz.belica;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.matfyz.belica.messages.*;
+import sk.matfyz.belica.messages.InitMessage;
+import sk.matfyz.belica.messages.MessageWithContext;
 import sk.matfyz.lcp.AbstractAgent;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.EventListener;
@@ -30,18 +29,12 @@ import sk.matfyz.lcp.api.Platform;
  */
 public class LogicProgrammingAgent extends AbstractAgent implements EventListener<MessageReceivedEvent>, Runnable {
 
-    private AgentId initialProgramLabel = null;
-    private boolean participationConfirmed = false;
-
-    private final BlockingQueue<Message> messages = new LinkedBlockingQueue<>();
-    
     private List<Rule> rules = new ArrayList<>();
 
-    private final Set<AgentId> participatedPrograms = new HashSet<>();
-    private final Set<Literal> smallestModel = new HashSet<>();
-    private final Map<Literal, Set<AgentId>> askedLiterals = new HashMap<>();
+    private final BlockingQueue<Message> messages = new LinkedBlockingQueue<>();
 
-    private Phase phase;
+    private final Map<ContextId, Context> contexts = new HashMap<>();
+    private long lastContextId = 0;
 
     public LogicProgrammingAgent(Platform platform) {
         super(platform, new AgentId());
@@ -58,60 +51,37 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
         while (true) {
             try {
                 Message msg = getMessages().take();
-                processMessage(msg);
+                ContextId msgCtxId = ((MessageWithContext) msg).getContextId();
+                Context found = contexts.get(msgCtxId);
+                
+                if (found == null) {
+                    Context newCtx = new Context(msgCtxId, this);
+                    contexts.put(msgCtxId, newCtx);
+                }
+                
+                contexts.get(msgCtxId).processMessage(msg);
             } catch (InterruptedException ex) {
                 Logger.getLogger(LogicProgrammingAgent.class.getName()).log(Level.SEVERE, null, ex);
             }
+
         }
     }
 
     @Override
     public void onEvent(MessageReceivedEvent e) {
-        getMessages().add(e.getMessage());
         System.out.println("received: " + e.getMessage());
+        getMessages().add(e.getMessage());
     }
 
-    private void processMessage(Message message) {
-        if (message != null) {
-            if (message instanceof InitMessage) {
-                processInit();
-            } else if (message instanceof ActivationMessage) {
-                processActivation();
-            } else if (message instanceof DependencyGraphBuiltMessage) {
-                processDependencyGraphBuilt();
-            } else {
-                if (this.phase == null) {
-                    this.phase = new PhaseOne(this);
-                }
-                this.phase.handleMessage(message);
-            }
-        }
-    }
+    public ContextId start() {
+        ContextId newCtxId = new ContextId(getName(), lastContextId++);
+        Context newCtx = new Context(newCtxId, this);
 
-    private void processActivation() {
-        this.phase = new PhaseTwo(this);
+        contexts.put(newCtxId, newCtx);
 
-        AgentId label = getName();
-        sendMessage(new FireRequestMessage(label, generateMessageId(), Collections.singleton(label), new HashSet<>()));
-    }
+        sendMessage(new InitMessage(getName(), generateMessageId(), newCtxId, Collections.singleton(getName())));
 
-    private void processDependencyGraphBuilt() {
-        AgentId label = getName();
-        sendMessage(new ActivationMessage(label, generateMessageId(), participatedPrograms));
-    }
-
-    private void processInit() {
-        AgentId label = getName();
-        this.setInitialProgramLabel(label);
-        sendMessage(new GetRequestMessage(label, generateMessageId(), Collections.singleton(label), new HashSet<>(), label));
-    }
-
-    public boolean isInitialProgram() {
-        return this.initialProgramLabel.equals(getName());
-    }
-
-    public void addRule(Rule r) {
-        this.rules.add(r);
+        return newCtxId;
     }
 
     /**
@@ -129,52 +99,10 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
     }
 
     /**
-     * @return the participatedPrograms
+     * @return the contexts
      */
-    public Set<AgentId> getParticipatedPrograms() {
-        return participatedPrograms;
-    }
-
-    /**
-     * @return the askedLiterals
-     */
-    public Map<Literal, Set<AgentId>> getAskedLiterals() {
-        return askedLiterals;
-    }
-
-    /**
-     * @return the smallestModel
-     */
-    public Set<Literal> getSmallestModel() {
-        return smallestModel;
-    }
-
-    /**
-     * @return the initialProgramLabel
-     */
-    public AgentId getInitialProgramLabel() {
-        return initialProgramLabel;
-    }
-
-    /**
-     * @param initialProgramLabel the initialProgramLabel to set
-     */
-    public void setInitialProgramLabel(AgentId initialProgramLabel) {
-        this.initialProgramLabel = initialProgramLabel;
-    }
-
-    /**
-     * @return the participationConfirmed
-     */
-    public boolean isParticipationConfirmed() {
-        return participationConfirmed;
-    }
-
-    /**
-     * @param participationConfirmed the participationConfirmed to set
-     */
-    public void setParticipationConfirmed(boolean participationConfirmed) {
-        this.participationConfirmed = participationConfirmed;
+    public Map<ContextId, Context> getContexts() {
+        return contexts;
     }
 
     /**
@@ -183,4 +111,5 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
     public BlockingQueue<Message> getMessages() {
         return messages;
     }
+
 }

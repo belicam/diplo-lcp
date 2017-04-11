@@ -5,9 +5,8 @@
  */
 package sk.matfyz.belica.messages;
 
-import com.sun.crypto.provider.RC2Cipher;
 import java.util.Set;
-import sk.matfyz.lcp.AbstractMessage;
+import sk.matfyz.belica.ContextId;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.MessageId;
 
@@ -15,10 +14,10 @@ import sk.matfyz.lcp.api.MessageId;
  *
  * @author martin
  */
-public class ActivationMessage extends AbstractMessage {
+public class ActivationMessage extends MessageWithContext {
 
-    public ActivationMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts) {
-        super(senderLabel, id, rcpts, null);
+    public ActivationMessage(AgentId senderLabel, MessageId id, ContextId context, Set<AgentId> rcpts) {
+        super(senderLabel, id, context, rcpts, null);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class MainTest {
                     Logger.getLogger(MainTest.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            agent.sendMessage(new InitMessage(agent.getName(), agent.generateMessageId(), Collections.singleton(agent.getName())));
+//            agent.sendMessage(new InitMessage(agent.getName(), agent.generateMessageId(), Collections.singleton(agent.getName())));
         }).start();
 
     }
@@ -56,7 +56,7 @@ public class MainTest {
             List<LogicProgrammingAgent> agents = ProgramParser.parseStream(programsStream, platform);
 
             ExecutorService executor = Executors.newCachedThreadPool();
-            agents.forEach(a -> executor.execute(a));
+//            agents.forEach(a -> executor.execute(a));
             executor.shutdown();
 
             sendInit(agents.get(0));

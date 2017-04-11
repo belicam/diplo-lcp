@@ -5,9 +5,8 @@
  */
 package sk.matfyz.belica.messages;
 
-import java.util.HashSet;
 import java.util.Set;
-import sk.matfyz.lcp.AbstractMessage;
+import sk.matfyz.belica.ContextId;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.MessageId;
 
@@ -15,12 +14,12 @@ import sk.matfyz.lcp.api.MessageId;
  *
  * @author martin
  */
-public class GetResponseMessage extends AbstractMessage {
+public class GetResponseMessage extends MessageWithContext {
     
     private MessageId referenceId;
     
-    public GetResponseMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, MessageId refId) {
-        super(senderLabel, id, rcpts, null); // TODO doriesit content
+    public GetResponseMessage(AgentId senderLabel, MessageId id, ContextId context, Set<AgentId> rcpts, MessageId refId) {
+        super(senderLabel, id, context, rcpts, null); 
         setReferenceId(refId);
     }
     

@@ -7,6 +7,7 @@ package sk.matfyz.belica.messages;
 
 import java.util.List;
 import java.util.Set;
+import sk.matfyz.belica.ContextId;
 import sk.matfyz.belica.Literal;
 import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
@@ -16,12 +17,12 @@ import sk.matfyz.lcp.api.MessageId;
  *
  * @author martin
  */
-public class GetRequestMessage extends AbstractMessage {
+public class GetRequestMessage extends MessageWithContext {
     private AgentId initialSender;
     private Set<Literal> lits;
     
-    public GetRequestMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, Set<Literal> lits, AgentId initialSender) {
-        super(senderLabel, id, rcpts, null); // TODO doriesit content
+    public GetRequestMessage(AgentId senderLabel, MessageId id, ContextId context, Set<AgentId> rcpts, Set<Literal> lits, AgentId initialSender) {
+        super(senderLabel, id, context, rcpts, null); 
         setInitialSender(initialSender);
         setLits(lits);
     }

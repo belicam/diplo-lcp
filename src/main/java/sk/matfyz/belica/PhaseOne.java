@@ -21,21 +21,21 @@ import sk.matfyz.lcp.api.MessageId;
  */
 public class PhaseOne implements Phase {
 
-    private final LogicProgrammingAgent program;
+    private final Context context;
     private final ActiveMessages activeMessages;
 
     private Map<AgentId, Object> resolvedParent = new HashMap<>();
     private boolean rulesChecked;
 
-    public PhaseOne(LogicProgrammingAgent program) {
-        this.program = program;
+    public PhaseOne(Context program) {
+        this.context = program;
         this.activeMessages = new ActiveMessages();
         this.rulesChecked = false;
     }
 
     @Override
     public void sendMessage(Message message) {
-        program.sendMessage(message);
+        context.sendMessage(message);
     }
 
     @Override
@@ -56,27 +56,44 @@ public class PhaseOne implements Phase {
         GetRequestMessage request = (GetRequestMessage) message;
         AgentId from = request.getSender();
 
-        program.setInitialProgramLabel(request.getInitialSender());
+        context.setInitialProgramLabel(request.getInitialSender());
 
         request.getLits().forEach(lit -> {
-            if (!program.getAskedLiterals().containsKey(lit)) {
-                program.getAskedLiterals().put(lit, new HashSet<>());
+            if (!context.getAskedLiterals().containsKey(lit)) {
+                context.getAskedLiterals().put(lit, new HashSet<>());
             }
-            program.getAskedLiterals().get(lit).add(from);
+            context.getAskedLiterals().get(lit).add(from);
         });
 
         if (rulesChecked) {
-            sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
+            sendMessage(new GetResponseMessage(
+                    context.getOwner().getName(),
+                    context.getOwner().generateMessageId(),
+                    context.getContextId(),
+                    Collections.singleton(from),
+                    request.getId())
+            );
         } else {
-            checkRules(message, program.getInitialProgramLabel());
+            checkRules(message, context.getInitialProgramLabel());
 
-            if (activeMessages.noMessages() && program.isParticipationConfirmed()) {
-                sendMessage(new GetResponseMessage(program.getName(), program.generateMessageId(), Collections.singleton(from), request.getId()));
+            if (activeMessages.noMessages() && context.isParticipationConfirmed()) {
+                sendMessage(new GetResponseMessage(
+                        context.getOwner().getName(),
+                        context.getOwner().generateMessageId(),
+                        context.getContextId(),
+                        Collections.singleton(from),
+                        request.getId())
+                );
             } else {
                 resolvedParent.put(from, message);
             }
 
-            sendMessage(new NotifyParticipationRequestMessage(program.getName(), program.generateMessageId(), Collections.singleton(program.getInitialProgramLabel())));
+            sendMessage(new NotifyParticipationRequestMessage(
+                    context.getOwner().getName(),
+                    context.getOwner().generateMessageId(),
+                    context.getContextId(),
+                    Collections.singleton(context.getInitialProgramLabel()))
+            );
         }
     }
 
@@ -90,11 +107,12 @@ public class PhaseOne implements Phase {
     private void processNotifyParticipationRequest(Object message) {
         AgentId senderLabel = ((NotifyParticipationRequestMessage) message).getSender();
 
-        program.getParticipatedPrograms().add(senderLabel);
+        context.getParticipatedPrograms().add(senderLabel);
 
         Message msg = new NotifyParticipationResponseMessage(
-                program.getName(),
-                program.generateMessageId(),
+                context.getOwner().getName(),
+                context.getOwner().generateMessageId(),
+                context.getContextId(),
                 Collections.singleton(senderLabel)
         );
 
@@ -102,17 +120,17 @@ public class PhaseOne implements Phase {
     }
 
     private void processNotifyParticipationResponse(Object message) {
-        program.setParticipationConfirmed(true);
+        context.setParticipationConfirmed(true);
         checkGetResponses();
     }
 
     private void checkRules(Object parentMessage, AgentId initialSender) {
         Map<AgentId, Set<Literal>> externals = new HashMap<>();
 
-        program.getRules().forEach(rule -> {
+        context.getRules().forEach(rule -> {
             rule.getBody().stream().forEach(lit -> {
                 AgentId litRef = lit.getProgramLabel();
-                if (!litRef.equals(program.getName())) {
+                if (!litRef.equals(context.getOwner().getName())) {
                     if (!externals.containsKey(litRef)) {
                         externals.put(litRef, new HashSet<>());
                     }
@@ -123,25 +141,27 @@ public class PhaseOne implements Phase {
 
         externals.keySet().forEach(key -> {
             Message childMessage = new GetRequestMessage(
-                    program.getName(),
-                    program.generateMessageId(),
+                    context.getOwner().getName(),
+                    context.getOwner().generateMessageId(),
+                    context.getContextId(),
                     Collections.singleton(key),
                     externals.get(key), initialSender
             );
 
             activeMessages.addChildMessage(parentMessage, key, childMessage);
-            program.sendMessage(childMessage);
+            context.sendMessage(childMessage);
         });
         rulesChecked = true;
     }
 
     private void checkGetResponses() {
-        if (program.isParticipationConfirmed() && activeMessages.noMessages()) {
-            if (program.isInitialProgram() && resolvedParent.isEmpty()) {
+        if (context.isParticipationConfirmed() && activeMessages.noMessages()) {
+            if (context.isInitialProgram() && resolvedParent.isEmpty()) {
                 Message msg = new DependencyGraphBuiltMessage(
-                        program.getName(),
-                        program.generateMessageId(),
-                        Collections.singleton(program.getName())
+                        context.getOwner().getName(),
+                        context.getOwner().generateMessageId(),
+                        context.getContextId(),
+                        Collections.singleton(context.getOwner().getName())
                 );
 
                 sendMessage(msg);
@@ -149,8 +169,9 @@ public class PhaseOne implements Phase {
                 resolvedParent.entrySet().forEach((parent) -> {
                     MessageId refId = ((Message) parent.getValue()).getId();
                     Message msg = new GetResponseMessage(
-                            program.getName(),
-                            program.generateMessageId(),
+                            context.getOwner().getName(),
+                            context.getOwner().generateMessageId(),
+                            context.getContextId(),
                             Collections.singleton(parent.getKey()),
                             refId
                     );

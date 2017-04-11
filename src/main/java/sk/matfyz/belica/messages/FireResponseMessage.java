@@ -6,6 +6,7 @@
 package sk.matfyz.belica.messages;
 
 import java.util.Set;
+import sk.matfyz.belica.ContextId;
 import sk.matfyz.lcp.AbstractMessage;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.MessageId;
@@ -14,12 +15,12 @@ import sk.matfyz.lcp.api.MessageId;
  *
  * @author martin
  */
-public class FireResponseMessage extends AbstractMessage {
+public class FireResponseMessage extends MessageWithContext {
 
     private MessageId referenceId;
     
-    public FireResponseMessage(AgentId senderLabel, MessageId id, Set<AgentId> rcpts, MessageId referenceId) {
-        super(senderLabel, id, rcpts, null); // TODO doriesit content
+    public FireResponseMessage(AgentId senderLabel, MessageId id, ContextId context, Set<AgentId> rcpts, MessageId referenceId) {
+        super(senderLabel, id, context, rcpts, null); 
         this.setReferenceId(referenceId);
     }
 
