@@ -55,7 +55,6 @@ public class TcpMessageTransportConnection extends Thread {
     }
 
     private boolean acceptMessage() {
-        System.out.println("sk.matfyz.lcp.TcpMessageTransportConnection.acceptMessage()");
         try {
             byte[] messageSize = new byte[4];
             int i = 0; // how many bytes did we read so far

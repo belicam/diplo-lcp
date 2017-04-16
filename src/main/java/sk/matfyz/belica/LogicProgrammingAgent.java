@@ -53,12 +53,12 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
                 Message msg = getMessages().take();
                 ContextId msgCtxId = ((MessageWithContext) msg).getContextId();
                 Context found = contexts.get(msgCtxId);
-                
+
                 if (found == null) {
                     Context newCtx = new Context(msgCtxId, this);
                     contexts.put(msgCtxId, newCtx);
                 }
-                
+
                 contexts.get(msgCtxId).processMessage(msg);
             } catch (InterruptedException ex) {
                 Logger.getLogger(LogicProgrammingAgent.class.getName()).log(Level.SEVERE, null, ex);
@@ -69,8 +69,15 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
 
     @Override
     public void onEvent(MessageReceivedEvent e) {
-        System.out.println("received: " + e.getMessage());
+        System.out.println("received: " + e.getMessage() + " " + ((MessageWithContext) e.getMessage()).getContextId());
         getMessages().add(e.getMessage());
+    }
+
+    @Override
+    public void sendMessage(Message msg) {
+        super.sendMessage(msg);
+        System.out.println("sent: " + msg + " " + ((MessageWithContext) msg).getContextId());
+
     }
 
     public ContextId start() {

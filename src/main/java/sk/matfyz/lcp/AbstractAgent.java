@@ -1,5 +1,6 @@
 package sk.matfyz.lcp;
 
+import sk.matfyz.belica.messages.MessageWithContext;
 import sk.matfyz.lcp.api.Agent;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.EventSource;
@@ -41,7 +42,6 @@ public class AbstractAgent implements Agent {
 
     public void sendMessage(Message msg) {
         platform.getMessageTransportService().sendMessage(msg, false);
-        System.out.println("sent: " + msg);
     }
 
     public EventSource<MessageReceivedEvent> getMessageReceivedSource() {
