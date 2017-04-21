@@ -76,16 +76,18 @@ public class PhaseOne implements Phase {
         } else {
             checkRules(message, context.getInitialProgramLabel());
 
-            if (activeMessages.noMessages() && context.isParticipationConfirmed()) {
-                sendMessage(new GetResponseMessage(
-                        context.getOwner().getName(),
-                        context.getOwner().generateMessageId(),
-                        context.getContextId(),
-                        Collections.singleton(from),
-                        request.getId())
-                );
-            } else {
-                resolvedParent.put(from, message);
+            if (activeMessages.noMessages()) {
+                if (context.isParticipationConfirmed()) {
+                    sendMessage(new GetResponseMessage(
+                            context.getOwner().getName(),
+                            context.getOwner().generateMessageId(),
+                            context.getContextId(),
+                            Collections.singleton(from),
+                            request.getId())
+                    );
+                } else {
+                    resolvedParent.put(from, message);
+                }
             }
 
             sendMessage(new NotifyParticipationRequestMessage(
