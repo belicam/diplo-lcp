@@ -66,12 +66,12 @@ public class PhaseTwo implements Phase {
             if (!participatedFiringEnded.containsValue(Boolean.FALSE)) {
                 context.getOwner().processResult(context.getSmallestModel());
                 
-//                sendMessage(new ContextEndedMessage(
-//                        context.getOwner().getName(),
-//                        context.getOwner().generateMessageId(),
-//                        context.getContextId(),
-//                        context.getParticipatedPrograms()
-//                ));
+                sendMessage(new ContextEndedMessage(
+                        context.getOwner().getName(),
+                        context.getOwner().generateMessageId(),
+                        context.getContextId(),
+                        context.getParticipatedPrograms()
+                ));
             }
         }
     }

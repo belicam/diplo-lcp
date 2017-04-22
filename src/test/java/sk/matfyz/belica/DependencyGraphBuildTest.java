@@ -1,6 +1,5 @@
 package sk.matfyz.belica;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,11 +7,15 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import sk.matfyz.belica.messages.InitMessage;
+import sk.matfyz.belica.messages.ContextEndedMessage;
+import sk.matfyz.belica.messages.MessageWithContext;
 import sk.matfyz.lcp.DefaultPlatform;
 import sk.matfyz.lcp.api.AgentId;
+import sk.matfyz.lcp.api.Message;
 import sk.matfyz.lcp.api.Platform;
 
 /**
@@ -21,13 +24,44 @@ import sk.matfyz.lcp.api.Platform;
  */
 public class DependencyGraphBuildTest {
 
+    public class TestLogicProgrammingAgent extends LogicProgrammingAgent {
+
+        public TestLogicProgrammingAgent(Platform platform, AgentId id) {
+            super(platform, id);
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Message msg = getMessages().take();
+                    ContextId msgCtxId = ((MessageWithContext) msg).getContextId();
+                    Context found = getContexts().get(msgCtxId);
+
+                    if (found == null) {
+                        Context newCtx = new Context(msgCtxId, this);
+                        getContexts().put(msgCtxId, newCtx);
+                    }
+
+                    // do not remove context on context end
+                    if (!(msg instanceof ContextEndedMessage)) {
+                        getContexts().get(msgCtxId).processMessage(msg);
+                    }
+                    
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(LogicProgrammingAgent.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
     @Test
     public void testDependencyGraphBuild() {
         Platform platform = new DefaultPlatform();
 
-        LogicProgrammingAgent p1 = new LogicProgrammingAgent(platform, new AgentId("agent1"));
-        LogicProgrammingAgent p2 = new LogicProgrammingAgent(platform, new AgentId("agent2"));
-        LogicProgrammingAgent p3 = new LogicProgrammingAgent(platform, new AgentId("agent3"));
+        LogicProgrammingAgent p1 = new TestLogicProgrammingAgent(platform, new AgentId("agent1"));
+        LogicProgrammingAgent p2 = new TestLogicProgrammingAgent(platform, new AgentId("agent2"));
+        LogicProgrammingAgent p3 = new TestLogicProgrammingAgent(platform, new AgentId("agent3"));
 
         p1.getRules().add(Rule.createRuleHead(new Constant("agent1:a")).addToBody(new Constant("agent2:b")));
         p2.getRules().add(Rule.createRuleHead(new Constant("agent2:b")).addToBody(new Constant("agent3:c")));
