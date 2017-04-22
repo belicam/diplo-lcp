@@ -9,19 +9,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import sk.matfyz.belica.messages.ActivationMessage;
+import sk.matfyz.belica.messages.ContextEndedMessage;
 import sk.matfyz.belica.messages.DependencyGraphBuiltMessage;
 import sk.matfyz.belica.messages.FireRequestMessage;
 import sk.matfyz.belica.messages.GetRequestMessage;
 import sk.matfyz.belica.messages.InitMessage;
+import sk.matfyz.belica.messages.MessageWithContext;
 import sk.matfyz.lcp.api.AgentId;
 import sk.matfyz.lcp.api.LcpUtils;
 import sk.matfyz.lcp.api.Message;
@@ -64,6 +61,8 @@ public class Context {
                 processActivation();
             } else if (message instanceof DependencyGraphBuiltMessage) {
                 processDependencyGraphBuilt();
+            } else if (message instanceof ContextEndedMessage) {
+                processContextEnded(message);
             } else {
                 if (this.phase == null) {
                     this.phase = new PhaseOne(this);
@@ -94,6 +93,12 @@ public class Context {
         AgentId label = getOwner().getName();
         this.setInitialProgramLabel(label);
         sendMessage(new GetRequestMessage(label, getOwner().generateMessageId(), getContextId(), Collections.singleton(label), new HashSet<>(), label));
+    }
+    
+    private void processContextEnded(Object message) {
+        ContextId ctxId = ((MessageWithContext) message).getContextId();
+
+        getOwner().getContexts().remove(ctxId);
     }
 
     public boolean isInitialProgram() {

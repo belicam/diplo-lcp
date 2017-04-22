@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -89,6 +90,10 @@ public class LogicProgrammingAgent extends AbstractAgent implements EventListene
         sendMessage(new InitMessage(getName(), generateMessageId(), newCtxId, Collections.singleton(getName())));
 
         return newCtxId;
+    }
+
+    public void processResult(Set<Literal> resultModel) {
+        System.out.println("Stop: " + resultModel); 
     }
 
     /**
