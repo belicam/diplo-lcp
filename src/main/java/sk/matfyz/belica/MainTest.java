@@ -44,12 +44,13 @@ public class MainTest {
     }
 
     public static void main(String[] args) {
-        if (args.length == 0) {
-            throw new IllegalArgumentException("args[] is empty! Missing required argument for path to file with distributed program.");
+        if (args.length < 2) {
+            throw new IllegalArgumentException("args[] is empty! Missing required argument for path to file with distributed program and argument specifying if is initial.");
         }
 
         String pth = args[0];
-
+        boolean isInitial = Boolean.parseBoolean(args[1]);
+        
         try {
             Platform platform = new DefaultPlatform();
             Stream<String> programsStream = Files.lines(Paths.get(pth));
@@ -60,7 +61,9 @@ public class MainTest {
             agents.forEach(a -> executor.execute(a));
             executor.shutdown();
 
-            sendInit(agents.get(0));
+            if (isInitial) {
+                sendInit(agents.get(0));
+            }
 
         } catch (IOException ex) {
             Logger.getLogger(MainTest.class.getName()).log(Level.SEVERE, null, ex);
